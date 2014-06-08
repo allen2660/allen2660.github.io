@@ -13,6 +13,7 @@ title: 我的Notes
 ### 数码爱好者
 
 + Macbook Pro
+ + [Mac下常用软件](/mac-softwares/)
 + Iphone 5s
 + Kpw2
 
