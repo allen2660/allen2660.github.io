@@ -10,6 +10,7 @@ title: 我的Notes
 ### 码农
 
 1. [使用GitHub写博客](/new-blog/)
+2. Test
 ### 数码爱好者
 
 ## 读书
