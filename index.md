@@ -69,4 +69,5 @@ title: 我的Blog
 ##自我介绍
 
 ##其他
-这里有一些技术[Link](www.allen2660.com/link.html)和个人[Notes](www.allen2660.com/notes.html)
+这里有一些技术[Link](/link/)和个人[Notes](/notes/)
+这里是我以前的[博客](http://www.allen2660.com)
