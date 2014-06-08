@@ -41,6 +41,8 @@ title: 我的Blog
 
 ##Protobuf
 
++ [Protobuf初探](/protobuf-fisrt-exploration/)
+
 ##Mina
 
 #5. 分布式系统
