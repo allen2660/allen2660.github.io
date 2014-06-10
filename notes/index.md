@@ -24,7 +24,7 @@ title: 我的Notes
 
 ### 技术类
 
-+ 代码大全
++ [代码大全](/code-complete-2/)
 + 重构
 + 代码整洁之道(Clean Code)
 
