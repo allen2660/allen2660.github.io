@@ -16,16 +16,190 @@ title:  Protobuf 初探
 
 编译安装：
 
-     ./configure --prefix=/home/liwei12/local/
+     ./configure --prefix=/home/liwei12/Tool
      make
      make check
      make install
+     这样protoc就安装在/home/liwei12/Tool/bin/protoc
+     lib安装在/home/liwei12/Tool/lib/libprotobuf.a .so等等
 
 运行example中的例子
     
     cd examples
-    export PKG_CONFIG_PATH=/home/liwei12/local/lib/pkgconfig/
+    export PKG_CONFIG_PATH=/home/liwei12/Tool/lib/pkgconfig/
+    在Makefile中加上-static，使用静态库链接。
     make cpp
+
+    ./add_person_cpp ADDRESS_BOOK_FILE
+    ./list_person_cpp ADDRESS_BOOK_FILE
+
+## 代码结构
+
+### Makefile
+先看根目录下的Makefile
+
+	all: config.h
+		$(MAKE) $(AM_MAKEFLAGS) all-recursice //这句话的含义是进入每一个子目录运行 `make all`
+
+再看 src/Makefile
+	
+	all: $(BUILT_SOURCES)
+		$(MAKE) $(AM_MAKEFLAGS) all-am
+	all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
+	PROGRAMS = $(bin_PROGRAMS)
+	$(bin_PROGRAMS) = protoc$(EXEEXT)
+	protoc$(EXEECT): $(protoc_OBJECTS) $(protoc_DEPENDENCIES) $(EXTRA_protoc_DEPENDENCIES)
+		@rm -f protoc$(EXEEXT)
+		$(CXXLINK) $(protoc_OBJECTS) $(proto_LDADD) $(LIBS)
+	protoc_OBJECTS = $(am_protoc_OBJECTS)
+	am_protoc_OBJECTS = main.$(OBJEXT)
+	protoc_DEPENDENCIES = $(am__DEPENDENCIES_1) libprotobuf.la libprotoc.la
+	libprotobuf.la: $(libprotobuf_la_OBJECTS) $(libprotobuf_la_DEPENDENCIES) $(EXTRA_libprotobuf_la_DEPENDENCIES) 
+		$(libprotobuf_la_LINK) -rpath $(libdir) $(libprotobuf_la_OBJECTS) $(libprotobuf_la_LIBADD) $(LIBS)
+	am_libprotobuf_la_OBJECTS = $(am__objects_1) strutil.lo substitute.lo \
+        structurally_valid.lo descriptor.lo descriptor.pb.lo \
+        descriptor_database.lo dynamic_message.lo \
+        extension_set_heavy.lo generated_message_reflection.lo \
+        message.lo reflection_ops.lo service.lo text_format.lo \
+        unknown_field_set.lo wire_format.lo gzip_stream.lo printer.lo \
+        tokenizer.lo zero_copy_stream_impl.lo importer.lo parser.lo
+    libprotobuf_la_OBJECTS = $(am_libprotobuf_la_OBJECTS)
+    libprotobuf_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
+	am__objects_1 = atomicops_internals_x86_gcc.lo \ //这个粒度基本是最基本的文件级别了
+        atomicops_internals_x86_msvc.lo common.lo once.lo \
+        stringprintf.lo extension_set.lo generated_message_util.lo \
+        message_lite.lo repeated_field.lo wire_format_lite.lo \
+        coded_stream.lo zero_copy_stream.lo \
+        zero_copy_stream_impl_lite.lo
+    libprotobuf_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+        $(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+        $(CXXFLAGS) $(libprotobuf_la_LDFLAGS) $(LDFLAGS) -o $@
+    parser.lo: google/protobuf/compiler/parser.cc
+        $(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT parser.lo -MD -MP -MF $(DEPDIR)/parser.Tpo -c -o parser.lo `test -f 'google/protobuf/compiler/parser.cc' || echo '$(srcdir)/'`google/protobuf/compiler/parser.cc
+
+通过上面的Makefile，基本上知道大概是怎么跑起来的了
+
+### protoc
+
+通过上面的Makefile分析，我们知道protoc可执行文件是由下列文件编成（通过看Makefile.am更直接）
+才发现Makefile可读性很差，而Makefile.am可读性非常高。以后开到开源代码，先看Makefile.am的说。
+	
+	bin_PROGRAMS = protoc
+	protoc_LDADD = $(PTHREAD_LIBS) libprotobuf.la libprotoc.la
+	protoc_SOURCES = google/protobuf/compiler/main.cc
+
+	//libprotobuf.la 与 libprotoc.la如下
+	libprotobuf_la_LIBADD = $(PTHREAD_LIBS)
+	libprotobuf_la_LDFLAGS = -version-info 8:0:0 -export-dynamic -no-undefined
+	libprotobuf_la_SOURCES =                                       \
+		$(libprotobuf_lite_la_SOURCES)                               \
+		google/protobuf/stubs/strutil.cc                             \
+		google/protobuf/stubs/strutil.h                              \
+		google/protobuf/stubs/substitute.cc                          \
+		google/protobuf/stubs/substitute.h                           \
+		google/protobuf/stubs/structurally_valid.cc                  \
+		google/protobuf/descriptor.cc                                \
+		google/protobuf/descriptor.pb.cc                             \
+		google/protobuf/descriptor_database.cc                       \
+		google/protobuf/dynamic_message.cc                           \
+		google/protobuf/extension_set_heavy.cc                       \
+		google/protobuf/generated_message_reflection.cc              \
+		google/protobuf/message.cc                                   \
+		google/protobuf/reflection_ops.cc                            \
+		google/protobuf/service.cc                                   \
+		google/protobuf/text_format.cc                               \
+		google/protobuf/unknown_field_set.cc                         \
+		google/protobuf/wire_format.cc                               \
+		google/protobuf/io/gzip_stream.cc                            \
+		google/protobuf/io/printer.cc                                \
+		google/protobuf/io/tokenizer.cc                              \
+		google/protobuf/io/zero_copy_stream_impl.cc                  \
+		google/protobuf/compiler/importer.cc                         \
+		google/protobuf/compiler/parser.cc
+
+	libprotobuf_lite_la_LIBADD = $(PTHREAD_LIBS)
+	libprotobuf_lite_la_LDFLAGS = -version-info 8:0:0 -export-dynamic -no-undefined
+	libprotobuf_lite_la_SOURCES =                                  \
+		google/protobuf/stubs/atomicops_internals_x86_gcc.cc         \
+		google/protobuf/stubs/atomicops_internals_x86_msvc.cc        \
+		google/protobuf/stubs/common.cc                              \
+		google/protobuf/stubs/once.cc                                \
+		google/protobuf/stubs/hash.h                                 \
+		google/protobuf/stubs/map-util.h                             \
+		google/protobuf/stubs/stl_util.h                             \
+		google/protobuf/stubs/stringprintf.cc                        \
+		google/protobuf/stubs/stringprintf.h                         \
+		google/protobuf/extension_set.cc                             \
+		google/protobuf/generated_message_util.cc                    \
+		google/protobuf/message_lite.cc                              \
+		google/protobuf/repeated_field.cc                            \
+		google/protobuf/wire_format_lite.cc                          \
+		google/protobuf/io/coded_stream.cc                           \
+		google/protobuf/io/coded_stream_inl.h                        \
+		google/protobuf/io/zero_copy_stream.cc                       \
+		google/protobuf/io/zero_copy_stream_impl_lite.cc
+
+	libprotoc_la_LIBADD = $(PTHREAD_LIBS) libprotobuf.la
+	libprotoc_la_LDFLAGS = -version-info 8:0:0 -export-dynamic -no-undefined
+	libprotoc_la_SOURCES =                                         \
+		google/protobuf/compiler/code_generator.cc                   \
+		google/protobuf/compiler/command_line_interface.cc           \
+		google/protobuf/compiler/plugin.cc                           \
+		google/protobuf/compiler/plugin.pb.cc                        \
+		google/protobuf/compiler/subprocess.cc                       \
+		google/protobuf/compiler/subprocess.h                        \
+		google/protobuf/compiler/zip_writer.cc                       \
+		google/protobuf/compiler/zip_writer.h                        \
+		google/protobuf/compiler/cpp/cpp_enum.cc                     \
+		google/protobuf/compiler/cpp/cpp_enum.h                      \
+		google/protobuf/compiler/cpp/cpp_enum_field.cc               \
+		google/protobuf/compiler/cpp/cpp_enum_field.h                \
+		google/protobuf/compiler/cpp/cpp_extension.cc                \
+		google/protobuf/compiler/cpp/cpp_extension.h                 \
+		google/protobuf/compiler/cpp/cpp_field.cc                    \
+		google/protobuf/compiler/cpp/cpp_field.h                     \
+		google/protobuf/compiler/cpp/cpp_file.cc                     \
+		google/protobuf/compiler/cpp/cpp_file.h                      \
+		google/protobuf/compiler/cpp/cpp_generator.cc                \
+		google/protobuf/compiler/cpp/cpp_helpers.cc                  \
+		google/protobuf/compiler/cpp/cpp_helpers.h                   \
+		google/protobuf/compiler/cpp/cpp_message.cc                  \
+		google/protobuf/compiler/cpp/cpp_message.h                   \
+		google/protobuf/compiler/cpp/cpp_message_field.cc            \
+		google/protobuf/compiler/cpp/cpp_message_field.h             \
+		google/protobuf/compiler/cpp/cpp_options.h                   \
+		google/protobuf/compiler/cpp/cpp_primitive_field.cc          \
+		google/protobuf/compiler/cpp/cpp_primitive_field.h           \
+		google/protobuf/compiler/cpp/cpp_service.cc                  \
+		google/protobuf/compiler/cpp/cpp_service.h                   \
+		google/protobuf/compiler/cpp/cpp_string_field.cc             \
+		google/protobuf/compiler/cpp/cpp_string_field.h              \
+		google/protobuf/compiler/java/java_enum.cc                   \
+		google/protobuf/compiler/java/java_enum.h                    \
+		google/protobuf/compiler/java/java_enum_field.cc             \
+		google/protobuf/compiler/java/java_enum_field.h              \
+		google/protobuf/compiler/java/java_extension.cc              \
+		google/protobuf/compiler/java/java_extension.h               \
+		google/protobuf/compiler/java/java_field.cc                  \
+		google/protobuf/compiler/java/java_field.h                   \
+		google/protobuf/compiler/java/java_file.cc                   \
+		google/protobuf/compiler/java/java_file.h                    \
+		google/protobuf/compiler/java/java_generator.cc              \
+		google/protobuf/compiler/java/java_helpers.cc                \
+		google/protobuf/compiler/java/java_helpers.h                 \
+		google/protobuf/compiler/java/java_message.cc                \
+		google/protobuf/compiler/java/java_message.h                 \
+		google/protobuf/compiler/java/java_message_field.cc          \
+		google/protobuf/compiler/java/java_message_field.h           \
+		google/protobuf/compiler/java/java_primitive_field.cc        \
+		google/protobuf/compiler/java/java_primitive_field.h         \
+		google/protobuf/compiler/java/java_service.cc                \
+		google/protobuf/compiler/java/java_service.h                 \
+		google/protobuf/compiler/java/java_string_field.cc           \
+		google/protobuf/compiler/java/java_string_field.h            \
+		google/protobuf/compiler/java/java_doc_comment.cc            \
+		google/protobuf/compiler/java/java_doc_comment.h             \
+		google/protobuf/compiler/python/python_generator.cc
 
 ## 语法
 
