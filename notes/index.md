@@ -35,5 +35,6 @@ title: 我的Notes
 + 如何阅读一本书
 + 影响力
 + 自控力
++ [情商](/emotional-intelligence/)
 
 ## 思考
