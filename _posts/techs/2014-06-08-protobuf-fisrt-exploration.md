@@ -29,7 +29,10 @@ title:  Protobuf 初探
     export PKG_CONFIG_PATH=/home/liwei12/Tool/lib/pkgconfig/
     在Makefile中加上-static，使用静态库链接。
     make cpp
-
+    	protoc --cpp_out. --java_out=. --python_out=. addressbook.proto
+    	c++ add_person.cc addressbook.pb.cc -static -o add_person_cpp `pkg-config --cflags --libs protobuf`
+    	c++ list_person.cc addressbook.pb.cc -static -o list_person_cpp `pkg-config --cflags --libs protobuf`
+    然后运行：
     ./add_person_cpp ADDRESS_BOOK_FILE
     ./list_person_cpp ADDRESS_BOOK_FILE
 
@@ -200,6 +203,86 @@ title:  Protobuf 初探
 		google/protobuf/compiler/java/java_doc_comment.cc            \
 		google/protobuf/compiler/java/java_doc_comment.h             \
 		google/protobuf/compiler/python/python_generator.cc
+
+#### protoc: main
+
+首先看主程：
+
+	int main(){
+		google::protobuf::compiler::CommandLineInterface cli;
+		cli.AllowPlugins("protoc-");
+
+		google::protobuf::compiler::cpp::CppGenerator cpp_generator;
+		//cli注册cpp_out的generator
+		cli.RegisterGenerator("--cpp_out","--cpp_opt",&cpp_generator,"Generate C++ header and source.");
+
+		return cli.Run(argc, argv);
+	}
+
+看看CommandLineInterface：
+
+	class CommandLineInterface {
+
+		public :
+			CommandLineInterface();
+  			~CommandLineInterface();
+
+  			void RegisterGenerator(const string& flag_name,
+                         CodeGenerator* generator,
+                         const string& help_text);
+            void RegisterGenerator(const string& flag_name,
+                         const string& option_flag_name,
+                         CodeGenerator* generator,
+                         const string& help_text);
+            //plug-in
+            void AllowPlugins(const string& exe_name_prefix);
+            int Run(int argc, const char* const argv[]);
+
+            void SetInputsAreProtoPathRelative(bool enable) {
+    			inputs_are_proto_path_relative_ = enable;
+  			}
+  			void SetVersionInfo(const string& text) {
+    			version_info_ = text;
+  			}
+	};
+
+TODO
+
+看看CppGenerator：
+
+	class LIBPROTOC_EXPORT CppGenerator : public CodeGenerator {
+		public:
+		 CppGenerator();
+		 ~CppGenerator();
+
+		 // implements CodeGenerator ----------------------------------------
+		 bool Generate(const FileDescriptor* file,
+		               const string& parameter,
+		               GeneratorContext* generator_context,
+		               string* error) const;
+
+		private:
+		 GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(CppGenerator);
+	};
+
+	CommangLineInterface  ------>> CodeGenerator
+									/		\
+								   /		 \
+							CppGenerator   JavaGenerator
+	
+上面的类中有一个宏GOOGLE_DISALLOW_EVIL_CONSTRUCTORS，定义在src/google/protobuf/stubs/common.h中
+
+	#undef GOOGLE_DISALLOW_EVIL_CONSTRUCTORS
+	#define GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(TypeName)    \
+  	TypeName(const TypeName&);                           \
+  	void operator=(const TypeName&)
+
+
+#### protoc: libprotobuf.lo
+
+#### protoc: libprotobuf-lite.lo
+
+#### protoc: libprotoc.lo
 
 ## 语法
 
