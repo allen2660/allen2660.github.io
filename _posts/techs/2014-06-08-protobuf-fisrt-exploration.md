@@ -251,7 +251,15 @@ title:  Protobuf 初探
 	Run(){
 		//1. 解析参数
 
-		//2. 
+		//2. 设置DiskSourceTree
+
+		//3. foreach 解析proto文件生成每一个FileDescriptor parsed_files
+
+		//4. 如果是COMPILE模式，foreach每一个output_directives_,将所有parsed_files生成到对应的output_directories[output_location]
+
+		//5. foreach output_directories，写磁盘
+
+		//6. ENCODE或者DECODE模式
 	}
 
 	CommandLineInterface::InterpretArgument(const string& name, const string& value) {
