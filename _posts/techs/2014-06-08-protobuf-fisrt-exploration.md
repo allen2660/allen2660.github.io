@@ -433,8 +433,74 @@ DiskSourceTree:public SourceTree importer.h
 #### protoc: libprotobuf.lo
 
 这部分主要包括Descriptor，FileDescriptor，DescriptorProto等等，还是很有意思的。
-TODO
 
+src/google/protobuf/descriptor.h
+
+	// Defined in this file.
+	class Descriptor; //描述一个protocol 消息
+	class FieldDescriptor; //描述一个Field
+	class EnumDescriptor; //描述一个枚举类型
+	class EnumValueDescriptor;
+	class ServiceDescriptor;
+	class MethodDescriptor;
+	class FileDescriptor; //Describes a whole .proto file
+	class DescriptorDatabase;
+	class DescriptorPool;	//中间使用了DescriptorDatabase
+
+	// Defined in descriptor.proto
+	class DescriptorProto;
+	class FieldDescriptorProto;
+	class EnumDescriptorProto;
+	class EnumValueDescriptorProto;
+	class ServiceDescriptorProto;
+	class MethodDescriptorProto;
+	class FileDescriptorProto;
+	class MessageOptions;
+	class FieldOptions;
+	class EnumOptions;
+	class EnumValueOptions;
+	class ServiceOptions;
+	class MethodOptions;
+	class FileOptions;
+	class UninterpretedOption;
+	class SourceCodeInfo;	
+
+	// Defined in message.h
+	class Message;	
+
+	// Defined in descriptor.cc
+	class DescriptorBuilder;
+	class FileDescriptorTables;	
+
+	// Defined in unknown_field_set.h.
+	class UnknownField;
+
+Descriptor
+	
+	void CopyTo(DescriptorProto* proto) const{
+		proto->set_name(name());
+
+ 		for (int i = 0; i < field_count(); i++) {
+ 		  field(i)->CopyTo(proto->add_field());
+ 		}
+ 		for (int i = 0; i < nested_type_count(); i++) {
+ 		  nested_type(i)->CopyTo(proto->add_nested_type());
+ 		}
+ 		for (int i = 0; i < enum_type_count(); i++) {
+ 		  enum_type(i)->CopyTo(proto->add_enum_type());
+ 		}
+ 		for (int i = 0; i < extension_range_count(); i++) {
+ 		  DescriptorProto::ExtensionRange* range = proto->add_extension_range();
+ 		  range->set_start(extension_range(i)->start);
+ 		  range->set_end(extension_range(i)->end);
+ 		}
+ 		for (int i = 0; i < extension_count(); i++) {
+ 		  extension(i)->CopyTo(proto->add_extension());
+ 		}
+		if (&options() != &MessageOptions::default_instance()) {
+ 		  proto->mutable_options()->CopyFrom(options());
+ 		}
+	}
 
 #### protoc: libprotobuf-lite.lo
 
