@@ -246,7 +246,44 @@ title:  Protobuf 初探
   			}
 	};
 
-TODO
+下面看看CommandLineInterface的Run方法：
+
+	Run(){
+		//1. 解析参数
+
+		//2. 
+	}
+
+	CommandLineInterface::InterpretArgument(const string& name, const string& value) {
+		name为空，value是文件名
+			input_files_.push_back(value);
+		-I --proto_path
+			proto_path_.push_back(pair<string,string>(virtual_path, disk_path))
+		-o --descriptor_set_out
+			descriptor_set_name_ = value;
+		--include_imports
+			imports_in_descriptor_set_ = true;
+		--include_source_info
+			source_info_in_descriptor_set_ = true;
+		-h --help
+			PrintHelpText();
+		--version
+		--disallow_services
+			disallow_services_ = true;
+		--encode --decode --decode_row
+			mode_ = (name == "--encode") ? MODE_ENCODE : MODE_DECODE;
+			codec_type_ = value;
+		--error_format
+			error_format = ERROR_FORMAT_GCC ERROR_FORMAT_MSVS
+		--plugin
+			plugins_[plugin_name] = path;
+		其他_out _opt flag
+			generators_by_flag_name_
+			generators_by_option_name_
+			generator_parameters_
+			output_directives_
+			
+	}
 
 看看CppGenerator：
 
