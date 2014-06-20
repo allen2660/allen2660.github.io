@@ -204,7 +204,8 @@ title:  Protobuf 初探
 		google/protobuf/compiler/java/java_doc_comment.h             \
 		google/protobuf/compiler/python/python_generator.cc
 
-#### protoc: main
+#### protoc: main Compiler相关
+
 
 首先看主程：
 
@@ -254,13 +255,119 @@ title:  Protobuf 初探
 		//2. 设置DiskSourceTree
 
 		//3. foreach 解析proto文件生成每一个FileDescriptor parsed_files
+		const FileDescriptor* parsed_file = importer.Import(input_files_[i]);
 
 		//4. 如果是COMPILE模式，foreach每一个output_directives_,将所有parsed_files生成到对应的output_directories[output_location]
+		GeneratorContextImpl** map_slot = &output_directories[output_location];
+		*map_slot = new GeneratorContextImpl(parsed_files);
+		GenerateOutput(parsed_files, output_directives_[i], *map_slot)// 内部调用output_directives_[i]中的generator来Generate(),生成的信息保存在map_slot中。
 
 		//5. foreach output_directories，写磁盘
-
+		const string& location = itr->first;
+		GeneratorContextImpl* directory = iter->second;
+		directory->WriteAllToDisk(location);
+		
 		//6. ENCODE或者DECODE模式
+		EncodeOrDecode(&pool)
 	}
+
+Importer类 descriptor.h
+
+	//构造参数
+	Importer::Importer(SourceTree *source_tree, MultiFieldErrorCollector* error_collector)
+	: database_(source_tree),
+    pool_(&database_, database_.GetValidationErrorCollector()){
+    	database_.RecordErrorsTo(error_collector);
+	}
+	//pool_ : DescriptorPool
+	//database_: SourceTreeDescriptorDatabase
+
+	const FileDescriptor* Importer::Import(const string& filename) {
+  		return pool_.FindFileByName(filename); // 下面DescriptorPool有描述
+	}
+
+
+DescriptorPool类 descriptor.h
+	
+	explicit DescriptorPool(DescriptorDatabase* fallback_database,
+                          ErrorCollector* error_collector = NULL);
+    const FileDescriptor* FindFileByName(const string& name) const {
+    	const FileDescriptor* result = tables_->FindFile(name);
+  		if (result != NULL) return result;
+  		if (underlay_ != NULL) {
+    		result = underlay_->FindFileByName(name);
+    		if (result != NULL) return result;
+  		}
+  		if (TryFindFileInFallbackDatabase(name)) {
+    		result = tables_->FindFile(name);
+    		if (result != NULL) return result;
+  		}
+  		return NULL;
+    }
+
+    underlay_ :DescriptorPool
+    tables_: scoped_ptr<Tables>
+
+    bool DescriptorPool::TryFindFileInFallbackDatabase(const string& name) const {
+  		if (fallback_database_ == NULL) return false;
+
+  		if (tables_->known_bad_files_.count(name) > 0) return false;
+
+  		FileDescriptorProto file_proto;
+  		if (!fallback_database_->FindFileByName(name, &file_proto) || //从fallback_database_中得到fileProto
+      		BuildFileFromDatabase(file_proto) == NULL) { //该方法从fileProto中Build出来FileDescriptor
+    		tables_->known_bad_files_.insert(name);
+    		return false;
+  		}
+
+  		return true;
+	}
+
+	const FileDescriptor* DescriptorPool::BuildFileFromDatabase(const FileDescriptorProto& proto) const {
+  		mutex_->AssertHeld();
+  		return DescriptorBuilder(this, tables_.get(),
+                           default_error_collector_).BuildFile(proto);
+	}
+
+DescriptorBuilder类 descriptor.cc
+
+	public:
+  		DescriptorBuilder(const DescriptorPool* pool,
+                    DescriptorPool::Tables* tables,
+                    DescriptorPool::ErrorCollector* error_collector);
+  		~DescriptorBuilder();
+
+  		//核心方法
+  		const FileDescriptor* BuildFile(const FileDescriptorProto& proto){
+  			//TODO 分析
+  		}
+
+
+Tables是DescriptorPool的内部类
+	
+	inline const FileDescriptor* DescriptorPool::Tables::FindFile(const string& key) const {
+  		return FindPtrOrNull(files_by_name_, key.c_str());
+	}
+	private：
+		SymbolsByNameMap      symbols_by_name_;
+  		FilesByNameMap        files_by_name_;
+
+SourceTreeDescriptorDatabase:public DescriptorDatabase importer.h
+
+	SourceTreeDescriptorDatabase::SourceTreeDescriptorDatabase(SourceTree* source_tree)
+  		: source_tree_(source_tree),
+    	error_collector_(NULL),
+    	using_validation_error_collector_(false),
+    	validation_error_collector_(this) {}
+	// implements DescriptorDatabase -----------------------------------
+  	bool FindFileByName(const string& filename, FileDescriptorProto* output);
+
+
+DiskSourceTree:public SourceTree importer.h
+
+
+
+下面是CLI支持的参数
 
 	CommandLineInterface::InterpretArgument(const string& name, const string& value) {
 		name为空，value是文件名
@@ -324,6 +431,10 @@ title:  Protobuf 初探
 
 
 #### protoc: libprotobuf.lo
+
+这部分主要包括Descriptor，FileDescriptor，DescriptorProto等等，还是很有意思的。
+TODO
+
 
 #### protoc: libprotobuf-lite.lo
 
