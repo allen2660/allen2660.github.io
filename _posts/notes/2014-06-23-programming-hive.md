@@ -200,6 +200,22 @@ DISTRIBUTED BY SORT BY 全局排序
 
 # 第10章 调优
 
+##JOIN优化
+
+大表写后面，或者使用/*streamtable(table)*/ 指定大表。
+
+## 本地模式
+
+## reducer数目
+
+首先可以手工指定reducer数目。
+
+    mapred.reduce.tasks// Hive默认reducer个数是3
+Hive是按照输入的数据量大小来确定reducer个数的。
+
+    hive.exec.reduces.bytes.per.reducer
+    hive.exec.reducers.max
+
 # 第11章 其他文件格式和压缩算法
 
 # 第12章 开发
