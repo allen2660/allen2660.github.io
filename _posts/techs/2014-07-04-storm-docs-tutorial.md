@@ -7,11 +7,35 @@ title:  storm-tutorial
 
 本文为Storm官方文档[Tutorial](http://storm.incubator.apache.org/documentation/Tutorial.html)的读书笔记
 
+在本教程中，你可以学习到如何创建Storm拓扑以及部署到Storm集群上。Java是主要使用的语言，有些例子使用Python来展示Storm的多语言能力。
+
 ## 前言
+
+本教程使用的例子来自于[storm-start](http://github.com/nathanmarz/storm-starter)项目。推荐你clone这个项目，并运行里面的例子。查看[Setting up a development environment](http://storm.incubator.apache.org/documentation/Setting-up-development-environment.html)和[Creating a new Storm project](http://storm.incubator.apache.org/documentation/Creating-a-new-Storm-project.html)来设置你的机器。
 
 ## Storm集群的组件
 
+Storm集群很像Hadoop集群。在Hadoop上你运行“MapReduce 任务”，在Storm上你运行“拓扑”。“任务”和“拓扑”本身是不一样的。一个主要其别是M-R任务最终会完成，而拓扑一直运行。（除非被杀掉）
+
+在Storm集群中有两种节点：master和worker。master几点运行“Nimbus”daemon，类似于Hadoop的JobTracker，Nimbus负责集群上的代码分发、非配任务给机器、监控失败情况。
+
+每个worker节点运行有一个“Supervisor”daemon。Supervisor监控分配给该机器的工作，按照Nimbus的分配启停worker进程。每个worker进程执行拓扑的子集，一个运行的拓扑由分布在很多机器上的work进程组成。
+
+![](http://storm.incubator.apache.org/documentation/images/storm-cluster.png)
+
+Nimbus和Supervisor之间的协调工作都是基于[Zookeeper](http://zookeeper.apache.org/)完成。另外，Numbus daemon和Supervisor daemons 是fail-fast并且无状态的，所有的状态都寄去在Zookeeper或者本地磁盘上。这意味着你可以kill -9 Nimbus或者Supervisor，他们会自动重启，就像什么都没有发生一样。这个设计使得Storm集群异常的稳定。
+
 ## 拓扑
+
+想要在Storm上做实时计算，你需要创建一个叫“拓扑”的东西。拓扑是一个计算的图，其中每一个几点包含一个处理逻辑，节点间的链接代表着数据的流动。
+
+运行一个拓扑是简单直接的。首先打包代码和依赖进一个jar包，其次运行如下的一个命令：
+
+    storm jar all-my-code.jar backtype.storm.MyTopology arg1 arg2
+
+这个命令会启动 backtype.storm.MyTopology类，参数为arg1和arg2。该类的主函数定义了拓扑，并且提交这个拓扑到Nimbus上去。`storm jar`负责连接Nimbus、上传jar包。
+
+由于拓扑的定义是一个Thrift结构体，Nimbus其实是一个Thrift服务器，你可以使用任意语言创建、提交拓扑。上面的例子是JVM-based language的最简单做法。关于开始和停止一个拓扑，查看[Running topologies on a production cluster](http://storm.incubator.apache.org/documentation/Running-topologies-on-a-production-cluster.html)获得更多信息。
 
 ## 流
 
