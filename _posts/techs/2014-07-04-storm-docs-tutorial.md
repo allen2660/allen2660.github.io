@@ -157,17 +157,106 @@ cleanup、getComponentConfiguration这样的方法经常不需要被bolt实现�
         }    
     }
 
-## 以local模式运行Demo拓扑
+## 以local模式运行Excalmation拓扑
+
+Storm有两个运行模式：本地模式和分布式模式。在本地模式中，Storm以一个进程的形式工作，使用线程模拟工作节点。本地模式在测试、开发拓扑的时候很有用。当你跑storm-starter中的拓扑时，它们会以本地模式运行,且你可以看到每个组件提交的消息。在[Local Mode](http://storm.incubator.apache.org/documentation/Local-mode.html)可以读到更多关于在本地模式运行拓扑的信息。
+
+在分布式模式中，Storm以集群的方式运行。提交一个拓扑到master的同时，你也提交了运行拓扑必须的所有代码。 master会负责分发代码、分配worker运行拓扑。如果worker挂掉，master会重新分配给其他worker。你可以参考[Running topologies on a production cluster](http://storm.incubator.apache.org/documentation/Running-topologies-on-a-production-cluster.html)获得更多在集群上运行拓扑的信息。
+
+下面是本地模式运行ExclamationTopology的代码：
+
+    Config conf = new Config(); 
+    conf.setDebug(true); 
+    conf.setNumWorkers(2);
+    LocalCluster cluster = new LocalCluster(); 
+    cluster.submitTopology(“test”, conf, builder.createTopology()); 
+    Utils.sleep(10000); 
+    cluster.killTopology(“test”); 
+    cluster.shutdown();
+
+首先，代码使用LocalCluster对象来定义一个进程内集群。提交拓扑到这个本地集群和提交到分布式集群上是一样的。使用submitTopology方法来提交拓扑，使用以下几个参数：name、conf、Topology。
+
+name用来指定一个topo方便杀掉。不杀的话，拓扑会一直运行下去。
+
+配置是用来调节运行拓扑的很多方面的。下面两个配置属性很常见：
+
++ TOPOLOGY_WORKERS(setNumWorkers) 指定分配多少进程来承担worker的功能。拓扑的组件(spout,bolt)以线程的方式运行。组件的线程数目被setBolt和setSpout方法控制。这些组件的线程在worker进程中运行。举例来说，你可以指定50个工作进程，300个线程的组件。这样的话每个进程有6个线程，每个县城都可以属于不同的组件。你通过调节每个组件的并发度和worker进程的个数来调节Storm拓扑的性能。
++ TOPOLOGY_DEBUG(setDebug) 设为true时，告诉Storm记录每个组件提交的每个消息。这在本地模式测试拓扑的时候很有用，但是在集群中运行的时候最好关掉。
+
+关于拓扑还有很多可配置的。详见[the Javadoc for Config](http://storm.incubator.apache.org/apidocs/backtype/storm/Config.html)。
+
+关于设置开发环境、本地模式运行拓扑（eclipse）,参见[Creating a new Storm project](http://storm.incubator.apache.org/documentation/Creating-a-new-Storm-project.html)。
 
 ## Stream grouping
 
+流分组告诉拓扑如何在两个组件之间发送元组。记住，每个spout和bolt是以task为单位在集群中并行执行的。如果在task层面看拓扑运行情况的话，应该如下图：
+
+![streaming-grouping](http://storm.incubator.apache.org/documentation/images/topology-tasks.png)
+
+当Bolt A的一个task向Bolt B提交元组的时候，应该发送给Bolt B的哪个task呢？
+
+“流分组”通过告诉Storm如何在tasks集合之间发送元组解决了上面的问题。在我们深入探讨不同种类的流分组之前，让我们看下[storm-starter](http://github.com/nathanmarz/storm-starter)中的另一个拓扑。这个[WordCountTopology](https://github.com/nathanmarz/storm-starter/blob/master/src/jvm/storm/starter/WordCountTopology.java) 读取spout的语句，经过WordCountBolt计算出单词出现的次数：
+
+    TopologyBuilder builder = new TopologyBuilder();
+    builder.setSpout(“sentences”, new RandomSentenceSpout(), 5); 
+    builder.setBolt(“split”, new SplitSentence(), 8) .shuffleGrouping(“sentences”); 
+    builder.setBolt(“count”, new WordCount(), 12) .fieldsGrouping(“split”, new Fields(“word”));
+
+SplitSentence 提交其收到的每一句话中的每一个单词，WordCount在内存中保存了word-count的map。每次WordCount收到一个单词，它更新它的状态、提交新的单词数目。
+
+有几种不同的流分组。
+
+最简单的分组叫做“shuffle grouping”，其将元组发送到随机的下游task。shuffle grouping在上面的拓扑中用于从RandomSentenceSpout发送到SplitSentence bolt。它的作用是随机的将处理元组的任务均匀的地发送出去。
+
+更有趣的分组是“fileds grouping”。fileds grouping用于SplitSentence bolt发送给WordCount的时候。它对于WordCount bolt的正确性很关键：同样的单词总是被发送到同样的task。不然的话，一个单词会被不同的task接收，这些task会提交错误的结果因为他们分别拥有了一部分信息。fields grouping使得你可以通过元组的fields子集来分发，从而fields子集的值一样的元组发送到同一个task。WordCount使用fields grouping来订阅SplitSentence的输出，同样的词被发往同一个task，从而保证结果的正确。
+
+fields grouping是实现流join和流聚合以及其他使用场景的基础。在底层，fields grouping使用取模哈希来实现。
+
+还有其他的一些流分组，在[Concepts](http://storm.incubator.apache.org/documentation/Concepts.html)可以看到更多。
+
+
 ## 使用其他语言定义Bolts
+
+Bolts可以使用任意语言定义。使用其他语言编写的bolt以子进程的方式运行，Storm使用stdI/O的JSON方式来实现进程间通信。通信协议只需要~100行的适配层库，Storm已经为Ruby、Python和Fancy（？Fancy是什么？）。
+
+下面是SplitSentence bolt：
+
+    public static class SplitSentence extends ShellBolt implements IRichBolt { 
+        public SplitSentence() { 
+            super(“python”, “splitsentence.py”); 
+        }
+
+        public void declareOutputFields(OutputFieldsDeclarer declarer) {
+            declarer.declare(new Fields("word"));
+        } 
+    }
+
+SplitSentence继承ShellBolt，且通过第二个参数声明使用splitsentence.py来运行。下面是splitsentence.py的实现：
+
+    import storm
+
+    class SplitSentenceBolt(storm.BasicBolt): 
+        def process(self, tup): 
+            words = tup.values[0].split(“ “) 
+            for word in words: 
+                storm.emit([word])
+
+    SplitSentenceBolt().run()
+
+关于如何使用其他语言编写spouts和bolts，以及如何通过其他语言编写拓扑（不使用JVM），参见[Using non-JVM languages with Storm](http://storm.incubator.apache.org/documentation/Using-non-JVM-languages-with-Storm.html)。
+
 
 ## 保证消息处理
 
+在本教程的早些时候，我们跳过了元组是如何被提交的相关讨论。这些方面是Storm的 可靠性API的一部分：Storm如何保证spout输出的每一个消息都被处理。参看[Guaranteeing message processing](http://storm.incubator.apache.org/documentation/Guaranteeing-message-processing.html)获得更多信息以及作为Storm用户如何利用Storm的可靠性API。
+
 ## 事务拓扑
 
+Storm保证每个消息都被拓扑至少处理一次。一个常见的问题是“如何利用Storm计数？不会多数么？”。Storm有一个特性叫做“事务拓扑”，可以让大叔分计算都能得到“精确处理一次语义”。查看[这里](http://storm.incubator.apache.org/documentation/Transactional-topologies.html)了解更多。
+
 ## 分布式RPC
+
+本教程展示了如何利用Storm做基本的流处理。使用Storm原语还可以做很多其他事情。Storm最有趣的应用之一就是分布式RPC，可以让你并行化处理远程紧张的函数调用。查看[这里](http://storm.incubator.apache.org/documentation/Distributed-RPC.html)了解更多。
 
 ## 结论
 
