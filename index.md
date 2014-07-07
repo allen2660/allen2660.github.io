@@ -51,6 +51,7 @@ title: 我的Blog
 
 ##Storm
 
++ [Storm文档-Rationale](/storm-docs-rationale/)
 + [Storm文档-Tutorial](/storm-docs-tutorial/)
 
 #6. 存储技术
