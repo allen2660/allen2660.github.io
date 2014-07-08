@@ -55,6 +55,7 @@ title: 我的Blog
 + [Storm文档-Tutorial](/storm-docs-tutorial/)
 + [Storm文档-CreateProject](/storm-docs-create-a-new-storm-project/)
 + [Storm文档-运行的Topology解析](/storm-docs-what-makes-a-running-topology/)
++ [Storm文档-TridentTutorial](/storm-docs-trident-tutorial/)
 
 #6. 存储技术
 

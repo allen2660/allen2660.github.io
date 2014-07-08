@@ -6,7 +6,11 @@ title:  trident tutorial
 本文为Storm官方文档[TridentTutorial](http://storm.incubator.apache.org/documentation/Trident-tutorial.html)的读书笔记
 
 
-# 展示例子
+# Trident tutorial
+
+Trident是一个基于Strom做实时计算的高度抽象。它让你可以无缝的将高吞吐有状态的流处理和低延迟的分布式查询结合起来。如果你熟悉高级批处理工具像Pig或者Cascading，Trident的概念是类似的。Trident有join、聚合、grouping、函数、过滤器等功能。除此以外，Trident还添加了基于db/永久存储做有状态的、增量处理的原语。Trident有持久的、精确一次语义，所以很容易开发Trident拓扑。
+
+## 展示例子
 
 该例子做两件事情：
 
@@ -63,7 +67,7 @@ Trident会智能的执行一个拓扑以获得最大化性能。在上面这个�
 
 让我们再看看Trident的另一个例子。
 
-# Reach
+## Reach
 
 Reach是Twitter中一个URL的曝光度。
 
@@ -105,10 +109,25 @@ Reach是Twitter中一个URL的曝光度。
 
 下面让我们更详细的看看Trident。
 
-# Fields and tuples
+## Fields and tuples
 
-# State
+## State
 
-# Trident 拓扑的执行
+Trident做了两件事来实现“each message only processed only once”：
 
-# 结论
+1. 每个batch有一个“transaction id”，如果一个batch重试会有一样的trasaction id。
+2. State的batches之间的更新是有序的。也就是说，batch2的更新不完成，是不会做batch3的。
+
+## Trident 拓扑的执行
+
+Trident的拓扑会编译成有效地Storm拓扑。元组只有在重新分片数据的时候才会在网络上发送，比如说groupBy或者Shuffle，所以下面的Trident Topology：
+
+![](http://storm.incubator.apache.org/documentation/images/trident-to-storm1.png)
+
+会被编译成下面的Storm spout/bolt
+
+![](http://storm.incubator.apache.org/documentation/images/trident-to-storm2.png)
+
+## 结论
+
+Trident让实时计算变得优雅。你已经看到，通过Trident API，如果使高吞吐流处理、状态操作、低延迟查询无缝结合起来。Trident让你可以在保证最大性能的基础上更自然的表达实时计算。
