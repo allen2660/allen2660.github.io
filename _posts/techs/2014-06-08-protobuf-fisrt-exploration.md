@@ -271,7 +271,7 @@ title:  Protobuf 初探
 		EncodeOrDecode(&pool)
 	}
 
-Importer类 descriptor.h
+Importer类 importer.h。该文件是.proto文件parser的公共接口，负责将.proto文件解析成FileDescriptor
 
 	//构造参数
 	Importer::Importer(SourceTree *source_tree, MultiFieldErrorCollector* error_collector)
@@ -286,6 +286,7 @@ Importer类 descriptor.h
   		return pool_.FindFileByName(filename); // 下面DescriptorPool有描述
 	}
 
+所以对于filename的解析全部下放到DescriptorPool.FindFileByName(filename)中了，
 
 DescriptorPool类 descriptor.h
 	
@@ -325,6 +326,7 @@ DescriptorPool类 descriptor.h
 
 	const FileDescriptor* DescriptorPool::BuildFileFromDatabase(const FileDescriptorProto& proto) const {
   		mutex_->AssertHeld();
+  		//Build之后将FileDescriptor放进tables中去。
   		return DescriptorBuilder(this, tables_.get(),
                            default_error_collector_).BuildFile(proto);
 	}
@@ -337,13 +339,49 @@ DescriptorBuilder类 descriptor.cc
                     DescriptorPool::ErrorCollector* error_collector);
   		~DescriptorBuilder();
 
-  		//核心方法
+  		//核心方法 根据FileDescriptorProto生成FileDescriptor
+  		// descriptor.cc line 3020
   		const FileDescriptor* BuildFile(const FileDescriptorProto& proto){
-  			//TODO 分析
+  			
+  			FileDescriptor* result = tables_->Allocate<FileDescriptor>();
+  			file_ = result;
+  			if (proto.has_source_code_info()) {
+    			SourceCodeInfo *info = tables_->AllocateMessage<SourceCodeInfo>();
+    			info->CopyFrom(proto.source_code_info());
+    			result->source_code_info_ = info;
+  			} else {
+    			result->source_code_info_ = &SourceCodeInfo::default_instance();
+  			}
+  			result->name_ = tables_->AllocateString(proto.name());
+
+  			result->package_ = tables_->AllocateString(proto.package());
+
+  			tables_->AddFile(result)
+
+  			result->dependency_count_ = proto.dependency_size();
+  			result->dependencies_ = tables_->AllocateArray<const FileDescriptor*>(proto.dependency_size());
+
+  			foreach proto.dependency {
+  				result->dependencies_[i] = dependency;
+  			}
+
+  			// Convert children.
+  			BUILD_ARRAY(proto, result, message_type, BuildMessage  , NULL);
+			BUILD_ARRAY(proto, result, enum_type   , BuildEnum     , NULL);
+			BUILD_ARRAY(proto, result, service     , BuildService  , NULL);
+			BUILD_ARRAY(proto, result, extension   , BuildExtension, NULL);
+
+  			//Copy options
+  			AllocateOptions(proto.options(), result);
+
+  			//Cross link
+  			CrossLinkFile(result, proto);
+
+  			return result;
   		}
 
 
-Tables是DescriptorPool的内部类
+Tables是DescriptorPool的内部类 定义在dexcriptor.cc中
 	
 	inline const FileDescriptor* DescriptorPool::Tables::FindFile(const string& key) const {
   		return FindPtrOrNull(files_by_name_, key.c_str());
@@ -360,7 +398,19 @@ SourceTreeDescriptorDatabase:public DescriptorDatabase importer.h
     	using_validation_error_collector_(false),
     	validation_error_collector_(this) {}
 	// implements DescriptorDatabase -----------------------------------
-  	bool FindFileByName(const string& filename, FileDescriptorProto* output);
+	// 这个方法根据filename得到FileDescriptorProto
+  	bool FindFileByName(const string& filename, FileDescriptorProto* output) {
+  		
+  		//1. 使用source_tree打开文件流
+  		scoped_ptr<io::ZeroCopyInputStream> input(source_tree_->Open(filename));
+  		//2. 分词
+  		io::Tokenizer tokenizer(input.get(), &file_error_collector);
+
+  		output->set_name(filename);
+  		//3. 使用Parser解析生成FileDescriptorProto
+  		return parser.Parse(&tokenizer, output) &&
+         !file_error_collector.had_errors();
+  	}
 
 
 DiskSourceTree:public SourceTree importer.h
