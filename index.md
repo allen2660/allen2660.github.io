@@ -42,6 +42,8 @@ title: 我的Blog
 ##Protobuf
 
 + [Protobuf初探](/protobuf-fisrt-exploration/)
++ [Protobuf-Descriptor与DescriptorProto](/protobuf-descriptor/)
++ [Protobuf-如何生成代码](/protobuf-generator/)
 
 ##Mina
 
