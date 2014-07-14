@@ -130,6 +130,9 @@ title:  cpp代码的自动生成
 
 # CppGenerator
 
+
+## Genrate方法
+
 看下CppGenerator的Generate方法：cpp/cpp_generator.cc line 54
 
 	  string basename = StripProto(file->name());
@@ -155,7 +158,76 @@ title:  cpp代码的自动生成
 
 	  return true;
 
+## FileGenerator
+
 上面的FileGenerator定义在cpp/cpp_file.h中，这个类是生成文件的内容的类。
+
+GenerateHeader 在cpp_file.cc line 91
+
+	1. 首先输出头文件GUARD
+	2. 输出版本声明 版本号相关的信息在src/google/protobuf/stubs/common.h
+	3. include其他相关的头文件
+	4. namespace，前向声明一些类似“protobuf_AddDesc_...的方法”
+	5. 前向声明Proto中包含的类 message_generators_[i]->GenerateForwardDeclaration(printer);
+	6. 生成enum定义代码，类定义代码，service定义代码，extension定义代码，类的inline定义代码。关闭namespace
+		+ enum_generators_[i]->GenerateDefinition(printer);
+		+ message_generators_[i]->GenerateClassDefinition(printer);
+		+ service_generators_[i]->GenerateDeclarations(printer);
+		+ extension_generators_[i]->GenerateDeclaration(printer);
+		+ message_generators_[i]->GenerateInlineMethods(printer);
+
+FileGenerator中有一系列Generator，用以自动化生成代码：
+	
+	scoped_array<scoped_ptr<MessageGenerator> > message_generators_;
+	scoped_array<scoped_ptr<EnumGenerator> > enum_generators_;
+	scoped_array<scoped_ptr<ServiceGenerator> > service_generators_;
+	scoped_array<scoped_ptr<ExtensionGenerator> > extension_generators_;
+
+GenerateSource 在cpp_file.cc line 300
+
+## MessageGenerator
+
+这个类用于生成Message相关的cpp代码：看一个方法GenerateClassDefinition:
+	
+	void MessageGenerator::
+	GenerateClassDefinition(io::Printer* printer) {
+		//1. 首先声明嵌套的类
+	  for (int i = 0; i < descriptor_->nested_type_count(); i++) {
+	    nested_generators_[i]->GenerateClassDefinition(printer);
+	    printer->Print("\n");
+	    printer->Print(kThinSeparator);
+	    printer->Print("\n");
+	  }	
+	  	// 2. 类名，构造析构，拷贝构造函数，赋值操作符
+
+	  	// 3. CopyFrom、MergeFrom、Clear、IsInitialized、ByteSize等
+
+	  	// 4. FileAccssor
+	  	GenerateFieldAccessorDeclarations(printer);
+
+	  	// 5.  private域，为了最小化paddig，三段：
+	  		 8 bytes对齐的域 _extensions_ _unknown_fields_
+	  		 不定的 Field private声明
+	  		 4 bytes对齐的
+	  		 	mutable int _cached_size_;
+	  		 	::google::protobuf::uint32 _has_bits_[($field_count$ + 31) / 32];
+	  		 	::google::protobuf::uint32 _has_bits_[1];
+
+	  	// 6. AddDescriptors、BuildDescriptors、ShutdownFile 变为友元。 		 	
+
+	  	// 7. static 方法 
+	  		InitAsDefaultInstance()
+	  		default_instance_
+
+	}
+
+
+
+
+
+
+
+
 
 # GeneratorContextImpl
 
@@ -234,3 +306,8 @@ GeneratorContextImpl是CommandLineInterface的内部类，定义在command_line_
 	  const vector<const FileDescriptor*>& parsed_files_;
 	  bool had_error_;
 	};
+
+
+# 总结
+
+至此，一个hello.proto用户自定义文件，是如何变成hello.pb.h和hello.pb.cc的，就已经水落石出了，下面看看PB的动态编译。
