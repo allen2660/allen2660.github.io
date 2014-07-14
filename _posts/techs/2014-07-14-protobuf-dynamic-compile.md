@@ -15,6 +15,22 @@ title:  protobuf的动态编译
 
 通过前面分析protobuf源码知道，Protobuf提供了compiler包来编译.proto文件，protoc就是这么用的。
 
+#### 设置Message
+
+TODO 添加代码：
+
+	void BuildFromProtoByImporter
+
+
+#### Parse Message
+
+当用动态接口得到FileDescriptor，以及Descriptor后，要想解析一个二进制pbMsg，可以这么做：
+
+	Message *msg;
+	msg->ParseFromIstream(istream* input);
+
+	//然后使用reflection的GetXXX方法，可以得到每一个Field的值。这样就完成了一个pbMsg的解析，得到每个字段。
+
 ### Java
 
 Java目前没有找到直接编译.proto文件的方法，[这篇文章](http://blog.csdn.net/lufeng20/article/details/8736584)中讲解可以使用desc文件来build，但是生成desc文件还是要使用protoc二进制。这个待研究。
