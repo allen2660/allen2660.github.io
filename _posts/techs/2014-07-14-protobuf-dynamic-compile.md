@@ -309,6 +309,7 @@ Java目前没有找到直接编译.proto文件的方法，[这篇文章](http://
 
 + Message
 + Descriptor
++ DynamicMessage
 + DynamicMessageFactory
 + Reflection
 
@@ -502,16 +503,57 @@ Message的主要方法：
 
 descriptor.h
 
+## DynamicMessage
+
+dynamic_message.cc
+
+从任意的Descriptor构造Message，DynamicMessage提供了这个功能。该类中使用了[placement new](https://www.google.com.hk/search?q=placement+new)。
+
+重要函数：
+
+  //构造函数
+  DynamicMessage::DynamicMessage(const TypeInfo* type_info){
+    分配type_info中的offsets[i]所代表的FileDescriptor* 所指向的内存。
+  }
+
+  DynamicMessage::~DynamicMessage() {}
+
 ## DynamicMessageFactory
 
 google/protobuf/dynamic_message.h
 
+主要方法是MessageFactory的主要方法，上面讲Message的时候已经描述了：
+
+  const Message *GetPrototype(const Descriptor* type);
+
 ## Reflection
 
-reflection.h
+google/protobuf/message.h
 
-Get
+Reflection接口包含用于`动态地`访问和修改protocol消息的方法。大部分的Message的GetReflection()方法，都用的GeneratedMessageReflection实现(generated_message_reflection.h)。由于是反射接口，肯定不如生成的类那么安全。比如说：
 
-Set
++ FieldDescriptor 不属于这个message
++ 比如对INT type调用 GETSTRING，会有exception抛出
++ 在repeated field上调用非repeated GET方法
++ 在非repeated field上调用repeated GET方法
++ reflection与message不符
 
+主要接口有Get/Set/Add，具体可以参考message.h。
+
+### GeneratedMessageReflection
+
+generated_message_reflection.h
+
+  #define DEFINE_PRIMITIVE_ACCESSORS(TYPENAME, TYPE, PASSTYPE, CPPTYPE) 
+
+## MessageFactory
+
+  //单例模式，所有的compiled-in的Message，都会往MessageFactory中注册自己。
+  static MessageFactory* generated_factory();
+
+  //下面两个函数用于在自动化生成的类中，往MessageFactory中注册
+  static void InternalRegisterGeneratedFile(
+      const char* filename, void (*register_messages)(const string&));
+  static void InternalRegisterGeneratedMessage(const Descriptor* descriptor,
+                                               const Message* prototype);
 
