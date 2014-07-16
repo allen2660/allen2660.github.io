@@ -45,6 +45,8 @@ title: 我的Blog
 + [Protobuf-Descriptor与DescriptorProto](/protobuf-descriptor/)
 + [Protobuf-如何生成代码](/protobuf-generator/)
 + [Protobuf-动态类型](/protobuf-dynamic-compile/)
++ [Protobuf-单侧](/protobuf-unittest/)
++ [Protobuf-Makefile](/protobuf-makefile/)
 
 ##Mina
 
@@ -79,6 +81,8 @@ title: 我的Blog
 
 #7. 编程语言
 ##C++
+
++ [googlemock介绍](/gmock/)
 
 ##Java
 
