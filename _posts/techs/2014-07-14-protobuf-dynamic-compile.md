@@ -38,7 +38,7 @@ title:  protobuf的动态编译
 	Message *createMessage(const Descriptor *descriptor) {
         Message *message = NULL;
         //再一次踩坑，这个factory中也有一个scoped_ptr
-        //一开始是使用的堆上的，总是core
+        //一开始是使用的栈上的，总是core
         DynamicMessageFactory *factory = new DynamicMessageFactory;
         if (descriptor) {
             // 创建default message(prototype)
@@ -215,7 +215,7 @@ Java目前没有找到直接编译.proto文件的方法，[这篇文章](http://
     Message *createMessage(const Descriptor *descriptor) {
         Message *message = NULL;
         //再一次踩坑，这个factory中也有一个scoped_ptr
-        //一开始是使用的堆上的，总是core
+        //一开始是使用的栈上的，总是core
         DynamicMessageFactory *factory = new DynamicMessageFactory;
         if (descriptor) {
             // 创建default message(prototype)
