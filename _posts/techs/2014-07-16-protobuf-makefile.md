@@ -467,3 +467,10 @@ Makefile.in--                       --> Makefile
         ├── libsub.so -> libsub.so.0.0.0
         ├── libsub.so.0 -> libsub.so.0.0.0
         └── libsub.so.0.0.0
+
+
+参考文章：
+
++ [Autoconf和Automake,自动生成Makefile](http://hi.baidu.com/northnorthpig/item/790521f6b3900920743c4ca4)
++ [Linux .o a .so .la .lo的区别](http://www.eetop.cn/blog/html/40/202640-8862.html)
++ [Configure，Makefile.am, Makefile.in, Makefile文件之间关系](http://jaguar13.iteye.com/blog/614427)
