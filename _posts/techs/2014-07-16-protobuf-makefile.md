@@ -285,4 +285,185 @@ Makefile.in--                       --> Makefile
 
 这里还是系统的讲一下上面的Makefile、configure都是怎么回事吧。
 
-TODO
+当工程里面包含很多源文件、库、文件放在不同的子目录时，手工书写Makefile就不太方便且容易出错。一般情况下使用autoconf和automake自动生成Makefile文件。
+
+使用autoconf和automake自动生成makefile的过程：
+
+![](http://dl.iteye.com/upload/attachment/216609/75bff996-1e11-3bd0-ae78-8ff04d438d61.gif)
+
+为一个项目生成makefile的步骤如下（在包含原文件的项目根目录下）：
+
+1. 运行autoscan，生成configure.scan。
+2. 修改configure.scan，改名为configure.in。
+3. 运行autoheader，生成文件config.h.in，configure.in里的AC_CONFIG_HEADER()会用到
+4. 运行libtoolize，生成ltmain.sh。libtool用
+5. 运行aclocal，生成aclocal.m4
+6. 运行autoconf，生成configure
+7. 为源文件编写makefile.am，每个需要编译的目录都有一个makefile.am。
+8. 运行automake，生成makefile.in，每个包含makefile.am的子目录都生成makefile.in
+    automake -a选项可以补齐文件config.guess，config.sub，install-sh，missing，depcomp
+9 运行./configure，生成config.status，config.h，makefile
+
+编译安装的步骤如下：
+
++ make，生成obj,lib,bin
++ make install，将相应的bin，lib，header拷贝到系统相应位置。
+
+## Demo
+
+这个例子共有三个C文件，main.c，add/add.c和sub/sub.c。源代码如下：
+
+    /*main.c*/
+    #include<stdio.h>
+    int main(void)
+    {
+        printf("%d\n",add(sub(100,5),1));
+        return 0;
+    }
+    /* add/add.c */
+    int add(int x,int y)
+    {
+        return x+y;
+    }
+    /* sub/sub.c */
+    int sub(int x,int y)
+    {
+        return x-y;
+    }
+
+1.运行 autoscan
+
+    > autoscan
+
+    目录下生成 autoscan.log和configure.scan
+2.修改configure.scan为configure.in如下：
+    
+    #                                               -*- Autoconf -*-
+    # Process this file with autoconf to produce a configure script.    
+
+    AC_PREREQ(2.59)
+    AC_INIT(helloword, 0.0.1, www.xxx.com)
+    AM_INIT_AUTOMAKE(helloworld,1.0)
+    AC_CONFIG_SRCDIR([main.c])
+    AC_CONFIG_HEADER([config.h])    
+
+    # Checks for programs.
+    AC_PROG_CC
+    AC_PROG_LIBTOOL 
+
+    # Checks for libraries. 
+
+    # Checks for header files.  
+
+    # Checks for typedefs, structures, and compiler characteristics.    
+
+    # Checks for library functions.
+    AC_OUTPUT(Makefile add/Makefile sub/Makefile)
+
+3456.运行autoheader，生成文件config.h.in
+
+    > autoheader
+    > libtoolize
+    > aclocal
+    > autoconf
+
+7.为源文件编写makefile.am，每个需要编译的目录都有一个makefile.am。
+
+    /* Makefile.am*/
+    AUTOMAKE_OPTIONS = foreign
+    SUBDIRS = add sub                                  #子目录，递归处理子目录的makefile.am
+    bin_PROGRAMS = main                            #生成可执行文件main
+    main_SOURCES = main.c                          #可执行文件main依赖的源文件
+    main_LDADD = add/libadd.la sub/libsub.la #可执行文件main连接时需要的库文件
+
+    /* add/Makefile.am */
+    lib_LTLIBRARIES = libadd.la                     #//生成共享库libadd.la
+    libadd_la_SOURCES = add.c                    #//共享库libadd.la依赖的源文件
+
+    /* sub/Makefile.am */
+    lib_LTLIBRARIES = libsub.la                     #//生成共享库libsub.la
+    libsub_la_SOURCES = sub.c                    #//共享库libsub.la依赖的源文件
+
+89.运行automake, 会提示缺少depcomp，使用automake -a
+
+    > automake
+    > configure
+
+最终的目录结构：
+
+    ├── aclocal.m4
+    ├── add
+    │   ├── add.c
+    │   ├── add.lo
+    │   ├── add.o
+    │   ├── libadd.la
+    │   ├── Makefile
+    │   ├── Makefile.am
+    │   └── Makefile.in
+    ├── autom4te.cache
+    │   ├── output.0
+    │   ├── output.1
+    │   ├── output.2
+    │   ├── requests
+    │   ├── traces.0
+    │   ├── traces.1
+    │   └── traces.2
+    ├── autoscan.log
+    ├── config.guess -> /usr/share/libtool/config.guess
+    ├── config.h
+    ├── config.h.in
+    ├── config.h.in~
+    ├── config.log
+    ├── config.status
+    ├── config.sub -> /usr/share/libtool/config.sub
+    ├── configure
+    ├── configure.in
+    ├── configure.scan
+    ├── depcomp -> /usr/share/automake-1.9/depcomp
+    ├── install-sh -> /usr/share/automake-1.9/install-sh
+    ├── libtool
+    ├── ltmain.sh -> /usr/share/libtool/ltmain.sh
+    ├── main
+    ├── main.c
+    ├── main.o
+    ├── Makefile
+    ├── Makefile.am
+    ├── Makefile.in
+    ├── missing -> /usr/share/automake-1.9/missing
+    ├── stamp-h1
+    └── sub
+        ├── libsub.la
+        ├── Makefile
+        ├── Makefile.am
+        ├── Makefile.in
+        ├── sub.c
+        ├── sub.lo
+        └── sub.o
+
+上面的例子，只讲了make相关的，如果你的程序是要安装的，只要make install就ok了。那么make install到底装什么呢？只需要在Makefile.am中添加如下东西：
+
+    bin_PROGRAMS = main
+    lib_LTLIBRARIES = libadd.la
+    nobase_include_HEADERS = \
+        add/add.h            \
+        sub/sub.h            \
+
+然后自动生成的Makefile中就会在install target上加上安装这些bin lib headers的命令。安装到--prefix=/xxx 的下面，目录结构如下：
+
+    .
+    ├── bin
+    │   └── main
+    ├── include
+    │   └── add
+    │       └── add.h
+    └── lib
+        ├── libadd.a
+        ├── libadd.la
+        ├── libadd.so -> libadd.so.0.0.0
+        ├── libadd.so.0 -> libadd.so.0.0.0
+        ├── libadd.so.0.0.0
+        ├── libsub.a
+        ├── libsub.la
+        ├── libsub.so -> libsub.so.0.0.0
+        ├── libsub.so.0 -> libsub.so.0.0.0
+        └── libsub.so.0.0.0
