@@ -757,10 +757,7 @@ ReadPrimitive方法：
 
 # CodedStreamOutput/CodedStreamInput
 
-整数类型的编码就是在这里完成的（TODO）
-
-input->ReadVarint32()
-output->WriteXXX
+整数类型的编码就是在这里完成的（见下面一个段落）
 
 主要有以下几个类：
 
@@ -773,3 +770,57 @@ output->WriteXXX
 
 
 google/protobuf/coded_stream.h
+
+
+
+# protobuf编码总结
+
+|ProtoType      | CppType         | WireFormat               |写策略                                          | 备注            |
+| ------------- |:---------------:| ------------------------:|--------------|---------------------------------|-----------------|
+|TYPE_DOUBLE    | CPPTYPE_DOUBLE  |WIRETYPE_FIXED64          |WriteLittleEndian64(EncodeDouble(value))        |小端法写入
+|TYPE_FLOAT     | CPPTYPE_FLOAT   |WIRETYPE_FIXED32          |WriteLittleEndian32(EncodeFloat(value))         |小端法写入
+|TYPE_INT64     | CPPTYPE_INT64   |WIRETYPE_VARINT           |WriteVarint64(static_cast<uint64>(value))       |64变长
+|TYPE_UINT64    | CPPTYPE_UINT64  |WIRETYPE_VARINT           |WriteVarint64(value)                            |64变长
+|TYPE_INT32     | CPPTYPE_INT32   |WIRETYPE_VARINT           |WriteVarint32SignExtended                       |<0 64位变长
+|TYPE_FIXED64   | CPPTYPE_UINT64  |WIRETYPE_FIXED64          |WriteLittleEndian64                             |小端法写入
+|TYPE_FIXED32   | CPPTYPE_UINT32  |WIRETYPE_FIXED32          |WriteLittleEndian32                             |小端法写入
+|TYPE_BOOL      | CPPTYPE_BOOL    |WIRETYPE_VARINT           |WriteVarint32(value ? 1 : 0)                    |32变长
+|TYPE_STRING    | CPPTYPE_STRING  |WIRETYPE_LENGTH_DELIMITED |WriteVarint32(value.size());WriteString(value)  |32变长
+|TYPE_GROUP     | CPPTYPE_MESSAGE |WIRETYPE_START_GROUP      |SerializeWithCachedSizes;WIRETYPE_END_GROUP     |
+|TYPE_MESSAGE   | CPPTYPE_MESSAGE |WIRETYPE_LENGTH_DELIMITED |WriteVarint32(size);SerializeWithCachedSizes    |长度 + 继续序列化
+|TYPE_BYTES     | CPPTYPE_STRING  |WIRETYPE_LENGTH_DELIMITED |WriteVarint32(value.size());WriteString(value)  |长度 + 内容
+|TYPE_UINT32    | CPPTYPE_UINT32  |WIRETYPE_VARINT           |WriteVarint32(value)                            |32变长
+|TYPE_ENUM      | CPPTYPE_ENUM    |WIRETYPE_VARINT           |WriteVarint32SignExtended(value)                |<0 64变长
+|TYPE_SFIXED32  | CPPTYPE_INT32   |WIRETYPE_FIXED32          |WriteLittleEndian32(static_cast<uint32>(value)) |小端法写入
+|TYPE_SFIXED64  | CPPTYPE_INT64   |WIRETYPE_FIXED64          |WriteLittleEndian64(static_cast<uint64>(value)) |小端法写入
+|TYPE_SINT32    | CPPTYPE_INT32   |WIRETYPE_VARINT           |WriteVarint32(ZigZagEncode32(value))            |ZigZag + 变长，适合负数
+|TYPE_SINT64    | CPPTYPE_INT64   |WIRETYPE_VARINT           |WriteVarint64(ZigZagEncode64(value))            |ZigZag + 变长，适合负数
+
+其中WireFormat会在每个Value前加上一个Tag（packed只会在repeated开始的时候加）
+
+STRING和BYTES的区别在于前者会做一个VerifyUTF8String
+
+其中Tag是32位的一个整数：
+
+    #define GOOGLE_PROTOBUF_WIRE_FORMAT_MAKE_TAG(FIELD_NUMBER, TYPE)                  \ 
+    static_cast<uint32>(                                                   \      
+      ((FIELD_NUMBER) << ::google::protobuf::internal::WireFormatLite::kTagTypeBits) \       
+        | (TYPE))   
+
+    WireFormatLite::WriteInt32
+      WriteTag(field_number, WIRETYPE_VARINT, output)
+      CodedOutputStream->WriteVarint32SignExtended(value)
+
+
+
+## WriteLittleEndian32
+
+## WriteLittleEndian64
+
+## WriteVarint32
+
+## WriteVarint64
+
+## WriteVarint32SignExtended
+
+## ZigZagEncode32
