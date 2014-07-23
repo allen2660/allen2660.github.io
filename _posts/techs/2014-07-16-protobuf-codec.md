@@ -903,7 +903,7 @@ ZeroCopyInputStream有几个实现在zero_copy_stream_impl.h
 其中CopyingInputStream和CopyInputStreamAdaptor定义在zero_copy_stream_impl_lite.h中。其中CopyInputStream是一个抽象类，只有Read和Skip两个接口。而CopyingInputStreamAdaptor是将CopyInputStream适配到ZeroCopyInputStream的适配器。
 
 还是用一个类图来表达一下：
-![zero](image/proto-buf-zerocopyinputstream.png)
+![zero](/image/proto-buf-zerocopyinputstream.png)
 
 
 所以如果想实现一个新的拷贝类型的ZeroCopyInputStream，只要提供CopyingInputStream的子类实现就ok了。类似于这里的CopyingFileInputStream和CopyingIstreamInputStream
