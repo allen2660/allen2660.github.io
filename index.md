@@ -45,6 +45,7 @@ title: 我的Blog
 + [Protobuf-Descriptor与DescriptorProto](/protobuf-descriptor/)
 + [Protobuf-如何生成代码](/protobuf-generator/)
 + [Protobuf-动态类型](/protobuf-dynamic-compile/)
++ [Protobuf-编解码&stream](/protobuf-codec/)
 + [Protobuf-单测](/protobuf-unittest/)
 + [Protobuf-Makefile](/protobuf-makefile/)
 
