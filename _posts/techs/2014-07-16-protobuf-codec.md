@@ -4,14 +4,14 @@ title:  protobuf中的数据编解码解析
 ---
 
 
-# Demo
+## Demo
 
 我们使用Message的以下两个函数来了解数据的序列化和反序列化：
 
     bool Message::SerializeToOstream(ostream* output) const;
     bool Message::ParseFromIstream(istream* input);
 
-## SerializeToOstream
+### SerializeToOstream
 
     //message.cc
     bool Message::SerializeToOstream(ostream* output) const {
@@ -435,7 +435,7 @@ wireFormatLite::WriteUInt32(field->number(),value,output)
 
 
 
-# ParseFromIstream
+## ParseFromIstream
 
     //messge.cc line 130
     bool Message::ParseFromIstream(istream* input) {
@@ -768,7 +768,7 @@ ReadPrimitive方法：
       return true;
     }
 
-# CodedStreamOutput/CodedStreamInput
+## CodedStreamOutput/CodedStreamInput
 
 整数类型的编码就是在这里完成的（见下面一个段落）
 
@@ -781,7 +781,7 @@ ReadPrimitive方法：
 
 其中CodedInputStream/CodedOutputStream是对Zero***Stream的封装，允许你对底层流中的字符以不同的形式操作。特别的，这两个类提供了varint编解码实现来编解码一个int。
 
-## CodedInputStream
+### CodedInputStream
 
 构造函数的参数是一个ZeroCopyInputStream指针:
 
@@ -809,7 +809,7 @@ ReadPrimitive方法：
 
 CodedInputStream::Refresh()函数负责从input_中得到数据指针。
 
-## CodedOutputStream
+### CodedOutputStream
 
     构造函数的参数是一个ZeroCopyOutputStream指针：   
 
@@ -843,7 +843,7 @@ CodedInputStream::Refresh()函数负责从input_中得到数据指针。
       }
     }
 
-## ZeroCopyInputStream
+### ZeroCopyInputStream
 
 ZeroCopy**Stream 的主要思想是，将buffer的开辟这个工作放在流内部，外面只要调用Next()方法，就可以开辟read/write buffer，得到这个buffer的指针，直接读写这块内存就ok了。省了一次memcpy。
 
@@ -861,7 +861,7 @@ ZeroCopyInputStream有几个实现在zero_copy_stream_impl.h
 + ConcatenatingInputStream ()
 + LimitingInputStream (对其他ZeroCopy的带limit的包装器)
 
-### IstreamInputStream
+#### IstreamInputStream
 
     //zero_copy_stream_impl.h
     class LIBPROTOBUF_EXPORT IstreamInputStream : public ZeroCopyInputStream {
@@ -911,7 +911,7 @@ ZeroCopyInputStream有几个实现在zero_copy_stream_impl.h
 所以如果想实现一个新的拷贝类型的ZeroCopyInputStream，只要提供CopyingInputStream的子类实现就ok了。类似于这里的CopyingFileInputStream和CopyingIstreamInputStream
 
 
-## ZeroCopyOutputStream
+### ZeroCopyOutputStream
 
 这是一个抽象类，主要接口是：
 
@@ -925,7 +925,7 @@ ZeroCopyInputStream有几个实现在zero_copy_stream_impl.h
 + OstreamOutputStream
 
 
-# protobuf编码总结
+## protobuf编码总结
 
 |ProtoType      | CppType         | WireFormat               |写策略                                          | 备注            |
 | ------------- |:---------------:| ------------------------:|--------------|---------------------------------|-----------------|
@@ -965,7 +965,7 @@ STRING和BYTES的区别在于前者会做一个VerifyUTF8String
 
 下面的几个Write方法都是CodedOutputStream提供的
 
-## WriteLittleEndian32
+### WriteLittleEndian32
 
     //coded_stream.cc line 612
     void CodedOutputStream::WriteLittleEndian32(uint32 value) {
@@ -996,11 +996,11 @@ STRING和BYTES的区别在于前者会做一个VerifyUTF8String
         return target + sizeof(value);
     }
 
-## WriteLittleEndian64
+### WriteLittleEndian64
 
 和上面类似
 
-## WriteVarint32
+### WriteVarint32
                                                                                                         
     void CodedOutputStream::WriteVarint32(uint32 value) {                                                  
       if (buffer_size_ >= kMaxVarint32Bytes) {                                                             
@@ -1055,11 +1055,11 @@ STRING和BYTES的区别在于前者会做一个VerifyUTF8String
     }                                                                                                      
 
 
-## WriteVarint64
+### WriteVarint64
 
 类似上面
 
-## WriteVarint32SignExtended
+### WriteVarint32SignExtended
 
     //coded_stream.h line 944
     inline void CodedOutputStream::WriteVarint32SignExtended(int32 value) {
@@ -1070,7 +1070,7 @@ STRING和BYTES的区别在于前者会做一个VerifyUTF8String
       }
     }
 
-## WriteString
+### WriteString
 
     //coded_stream.h line 1028
     inline void CodedOutputStream::WriteString(const string& str) {
@@ -1091,7 +1091,7 @@ STRING和BYTES的区别在于前者会做一个VerifyUTF8String
     }
 
 
-## ZigZagEncode32   
+### ZigZagEncode32   
 
     //wire_format_lite.h line 600   
     inline uint32 WireFormatLite::ZigZagEncode32(int32 n) {
