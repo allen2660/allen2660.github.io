@@ -3,9 +3,9 @@ layout: post
 title: 我的Blog
 ---
 
-#allenlee.nju@gmail.com
+## allenlee.nju@gmail.com
 
-# Index
+## Index
 
 1. 操作系统
 2. 工具&桌面系统
@@ -17,29 +17,29 @@ title: 我的Blog
 8. 软件设计
 9. About Me
 
-#1. 操作系统
+##1. 操作系统
 
-##内存
+### 内存
 
-##Linux
+###Linux
 
-#2. 工具&桌面系统
+## 2. 工具&桌面系统
 
-##Vim
+###Vim
 
-##Emacs
+###Emacs
 
-##Mac常用软件
+###Mac常用软件
 
-#3. 算法相关
+##3. 算法相关
 
-#4. 网络编程
+##4. 网络编程
 
-##Netty
+###Netty
 
-##Thrift
+###Thrift
 
-##Protobuf
+###Protobuf
 
 + [Protobuf初探](/protobuf-fisrt-exploration/)
 + [Protobuf-Descriptor与DescriptorProto](/protobuf-descriptor/)
@@ -49,13 +49,13 @@ title: 我的Blog
 + [Protobuf-单测](/protobuf-unittest/)
 + [Protobuf-Makefile](/protobuf-makefile/)
 
-##Mina
+###Mina
 
-#5. 分布式系统
+##5. 分布式系统
 
-##Hadoop
+###Hadoop
 
-##Storm
+###Storm
 
 + [Storm文档-Rationale](/storm-docs-rationale/)
 + [Storm文档-Tutorial](/storm-docs-tutorial/)
@@ -74,27 +74,27 @@ title: 我的Blog
     + [Storm代码-代码结构](/storm-code-structure-of-the-codebase/)
     + [Storm代码-TimeCachedMap & RotatingMap](/storm-code-timecachemap-rotatingmap/)
 
-#6. 存储技术
+##6. 存储技术
 
-##RcFile OrcFile
+###RcFile OrcFile
 
-##压缩技术
+###压缩技术
 
-#7. 编程语言
-##C++
+##7. 编程语言
+###C++
 
 + [googlemock介绍](/gmock/)
 
-##Java
+###Java
 
-#8. 软件设计
+##8. 软件设计
 
-##Design
+###Design
 
-#9. 关于我
+##9. 关于我
 
-##自我介绍
+###自我介绍
 
-##其他
+###其他
 这里有一些技术[Link](/link/)和个人[Notes](/notes/)
 这里是我以前的[博客](http://www.allen2660.com)
