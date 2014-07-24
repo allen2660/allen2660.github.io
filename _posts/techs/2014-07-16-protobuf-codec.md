@@ -435,7 +435,7 @@ wireFormatLite::WriteUInt32(field->number(),value,output)
 
 
 
-## ParseFromIstream
+### ParseFromIstream
 
     //messge.cc line 130
     bool Message::ParseFromIstream(istream* input) {
