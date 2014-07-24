@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  protobuf中的数据编解码解析
 ---
 
@@ -778,6 +778,8 @@ ReadPrimitive方法：
 + ZeroCopyOutputStream
 + CodedInputStream
 + CodedOutputStream
+
+其中CodedInputStream/CodedOutputStream是对Zero***Stream的封装，允许你对底层流中的字符以不同的形式操作。特别的，这两个类提供了varint编解码实现来编解码一个int。
 
 ## CodedInputStream
 
