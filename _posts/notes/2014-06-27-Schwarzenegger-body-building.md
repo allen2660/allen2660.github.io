@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  《施瓦辛格健身全书》阅读笔记
 ---
 

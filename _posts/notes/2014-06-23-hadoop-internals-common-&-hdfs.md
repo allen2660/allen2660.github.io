@@ -1,5 +1,5 @@
 ---
-layout:	default
+layout:	post
 title:  《Hadoop技术内幕-Common&HDFS》读书笔记
 ---
 

@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  《Hive编程指南》阅读笔记
 ---
 

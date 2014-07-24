@@ -1,5 +1,5 @@
 ---
-layout:	default
+layout:	post
 title:  《代码大全2》读书笔记
 ---
 

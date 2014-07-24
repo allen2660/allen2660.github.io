@@ -1,5 +1,5 @@
 ---
-layout:	default
+layout:	post
 title:  介绍Mac下面常用的软件
 ---
 

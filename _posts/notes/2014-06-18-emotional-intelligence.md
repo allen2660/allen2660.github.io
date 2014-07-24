@@ -1,5 +1,5 @@
 ---
-layout:	default
+layout:	post
 title:  《情商》阅读笔记
 ---
 
