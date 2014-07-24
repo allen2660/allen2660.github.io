@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  [Storm源码]源码结构
 ---
 

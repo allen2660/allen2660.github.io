@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  set up a storm cluster
 ---
 

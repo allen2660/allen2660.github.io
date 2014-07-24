@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  Storm如何保证消息不丢失
 ---
 

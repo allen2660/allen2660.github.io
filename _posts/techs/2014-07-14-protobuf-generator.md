@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  cpp代码的自动生成
 ---
 

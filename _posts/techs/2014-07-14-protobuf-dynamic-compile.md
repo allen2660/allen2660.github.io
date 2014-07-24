@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  protobuf的动态编译
 ---
 

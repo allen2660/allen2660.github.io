@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  protobuf中的反射解析
 ---
 
