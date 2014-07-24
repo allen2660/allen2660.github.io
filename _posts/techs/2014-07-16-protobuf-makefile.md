@@ -5,7 +5,7 @@ title:  protobuf中的MakeFile
 
 本文根据protobuf的Makefile，看下如何从Makefile.am最终生成Makefile，以及是怎么做的？
 
-# 目录结构
+## 目录结构
 
 下载后的目录结构如下所示（只显示了三级子目录）：
 
@@ -67,7 +67,7 @@ title:  protobuf中的MakeFile
     │   └── solaris
     └── vsprojects
 
-# 编译
+## 编译
 
     ./configure --prefix=/home/users/liwei12/Tool
 
@@ -281,7 +281,7 @@ Makefile.in--                       --> Makefile
 
 编译的主要单位是Makefile，用户手工编写Makefile.am，这个文件可读性较高，然后configure会生成Makefile。
 
-# Autoconf和Automake，自动生成Makefile
+## Autoconf和Automake，自动生成Makefile
 
 这里还是系统的讲一下上面的Makefile、configure都是怎么回事吧。
 
@@ -309,7 +309,7 @@ Makefile.in--                       --> Makefile
 + make，生成obj,lib,bin
 + make install，将相应的bin，lib，header拷贝到系统相应位置。
 
-## Demo
+### Demo
 
 这个例子共有三个C文件，main.c，add/add.c和sub/sub.c。源代码如下：
 
