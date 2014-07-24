@@ -48,6 +48,7 @@ title: 我的Blog
 + [Protobuf-编解码&stream](/protobuf-codec/)
 + [Protobuf-单测](/protobuf-unittest/)
 + [Protobuf-Makefile](/protobuf-makefile/)
++ [Protobuf-GMR](/protobuf-reflection/)
 
 ###Mina
 
