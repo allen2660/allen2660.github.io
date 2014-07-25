@@ -9,7 +9,7 @@ title:  分布式 rpc
 
 DRPC 不算是Storm的功能。因为它更多的是一个基于Storm原语（流、spout、bolt、topology）的使用场景。DRPC本可以以独立库的方式发行，但由于它太有用了所以还是和Storm一起发行。
 
-# 高层总览
+## 高层总览
 
 DRPC被一个叫做“DRPC Server”的服务协调（Storm自带这个server的实现）。DRPC server负责接收一个rpc请求，发送请求到Storm拓扑，接收拓扑的结果，发送回给客户端。从一个客户端的角度来看，DRPC调用看起来就像一个普通的RPC调用。举例来说，下面是一个客户端调用“reach”函数的例子，其中参数是“http://twitter.com”:
 
@@ -22,7 +22,7 @@ DRPC的工作流看起来就像下面这样：
 
 客户端向DRPC服务器发送函数的名字和函数的参数。拓扑使用DRPCSpout来实现来自DRPC server的函数调用流。然后拓扑计算结果，最后有一个叫`ReturnResults`的bolt连接到DRPC server，发送对应函数调用id的结果。DRPC server查找对应id的client，解除阻塞，发送结果。
 
-# LinearDRPCTopologyBuilder
+## LinearDRPCTopologyBuilder
 
 Storm提供了一个叫做[LinearDRPCTopologyBuilder](http://storm.incubator.apache.org/apidocs/backtype/storm/drpc/LinearDRPCTopologyBuilder.html)的类可以让DRPC的大部分工作自动化。其包括：
 
@@ -54,7 +54,7 @@ Storm提供了一个叫做[LinearDRPCTopologyBuilder](http://storm.incubator.apa
 
 在这个例子中，`ExclaimBolt`简单地在元组的第二个域后面附加了“!”。`LinearDRPCTopologyBuilder`负责其他的工作，比如连接DRPC server以及发送结果给client。
 
-# 本地模式 DRPC
+## 本地模式 DRPC
 
 DRPC可以再本地模式运行，上面的例子以本地模式运行如下：
 
@@ -65,7 +65,7 @@ DRPC可以再本地模式运行，上面的例子以本地模式运行如下：
     cluster.shutdown(); 
     drpc.shutdown();
 
-# 远程模式 DRPC
+## 远程模式 DRPC
 
 在真实集群上运行DRPC的三步骤：
 
@@ -78,7 +78,7 @@ DRPC可以再本地模式运行，上面的例子以本地模式运行如下：
     StormSubmitter.submitTopology("exclamation-drpc", conf, builder.createRemoteTopology());
 
 
-# 一个更复杂的例子
+## 一个更复杂的例子
 
 上面的Exclamation DRPC只是一个玩具。下面是一个复杂的例子。在Trident Tutorial中也有过Trident版本的实现，“reach” RPC。
 
@@ -139,11 +139,11 @@ Batch bolt提供了finishBatch方法，在这个batch所有的元组都被接受
 
 拓扑的其他部分都是直接是的。你可以看见，reach 计算的每个步骤都是并行计算的，定义DRPC拓扑极其简单。
 
-# 非线性 DRPC 拓扑
+## 非线性 DRPC 拓扑
 
 `LinearDRPCTopologyBuilde`只能处理线性的DRPC拓扑，这种拓扑中计算是一序列步骤。不难相信会有函数需要bolt的分叉以及合并。目前你需要自己使用CoordinateBolt在底层实现。可以等待更多的DRPC拓扑抽象被支持。
 
-# LinearDRPCTopologyBuilder 如何工作
+## LinearDRPCTopologyBuilder 如何工作
 
 + DRPCSpout提交[args, return-info]。return-info是DRPC主机和端口加id。
 + 构造包含以下元素的拓扑：
@@ -155,12 +155,12 @@ Batch bolt提供了finishBatch方法，在这个batch所有的元组都被接受
 + LinearDRPCTopologyBuilder是基于Storm原语的高级抽象的一个很好的例子
 
 
-# 高级
+## 高级
 
 + `KeyedFairBolt`：在同一时刻多个请求的处理编织在一起。
 + 如何直接使用`CoordinatedBolt`。
 
-# 补充 VS Trident DRPC
+## 补充 VS Trident DRPC
 
 Trident topology的API更简单：
 
