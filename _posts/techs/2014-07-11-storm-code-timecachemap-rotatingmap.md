@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  [Storm源码]TimeCacheMap & RotatingMap
+title:  Storm源码-TimeCacheMap & RotatingMap
 ---
 
 在之前的[常见模式](/storm-docs/common-patterns)中，讲到了Storm有一个数据结构叫做TimeCacheMap，可以保存最近一段时间的数据。当时看名字自然的想到用HashMap的方式来实现,后台加一个线程将过期的数据删除。
