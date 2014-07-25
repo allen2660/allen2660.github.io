@@ -6,7 +6,6 @@ title:  trident api
 本文为Storm官方文档[TridentAPI](http://storm.incubator.apache.org/documentation/Trident-API-Overview.html)的读书笔记
 
 
-# Trident API 综述
 
 ## 本地Partition 操作
 

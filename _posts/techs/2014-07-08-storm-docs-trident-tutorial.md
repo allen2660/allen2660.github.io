@@ -6,7 +6,6 @@ title:  trident tutorial
 本文为Storm官方文档[TridentTutorial](http://storm.incubator.apache.org/documentation/Trident-tutorial.html)的读书笔记
 
 
-# Trident tutorial
 
 Trident是一个基于Strom做实时计算的高度抽象。它让你可以无缝的将高吞吐有状态的流处理和低延迟的分布式查询结合起来。如果你熟悉高级批处理工具像Pig或者Cascading，Trident的概念是类似的。Trident有join、聚合、grouping、函数、过滤器等功能。除此以外，Trident还添加了基于db/永久存储做有状态的、增量处理的原语。Trident有持久的、精确一次语义，所以很容易开发Trident拓扑。
 
