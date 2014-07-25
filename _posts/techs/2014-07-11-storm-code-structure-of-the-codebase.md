@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  [Storm源码]源码结构
+title:  Storm源码-源码结构
 ---
 
 本文为Storm官方文档[代码结构](http://storm.incubator.apache.org/documentation/Structure-of-the-codebase.html)的读书笔记
