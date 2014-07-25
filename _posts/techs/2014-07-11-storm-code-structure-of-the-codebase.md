@@ -100,12 +100,10 @@ Spout和bolt序列化成上面讨论的Thrift定义。
 
 
 
-#
-## Clojure 命名空间
+### Clojure 命名空间
 
 
-[
-backtype.storm.bootstrap](https://github.com/apache/incubator-storm/blob/master/storm-core/src/clj/backtype/storm/bootstrap.clj): 包括了1个有用的宏来引入源码中用到的所有类及命名空间。
+[backtype.storm.bootstrap](https://github.com/apache/incubator-storm/blob/master/storm-core/src/clj/backtype/storm/bootstrap.clj): 包括了1个有用的宏来引入源码中用到的所有类及命名空间。
 
 [backtype.storm.clojure](https://github.com/apache/incubator-storm/blob/master/storm-core/src/clj/backtype/storm/clojure.clj): 包括了利用Clojure为Storm定义的特定领域语言(DSL)。
 
