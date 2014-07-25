@@ -10,9 +10,9 @@ title:  Storm源码-TimeCacheMap & RotatingMap
 代码的地址在[这里](https://github.com/apache/incubator-storm/blob/master/storm-core/src/jvm/backtype/storm/utils/TimeCacheMap.java)。
 
 
-#TimeCacheMap
+##TimeCacheMap
 
-## 代码
+### 代码
 类的注释是这样的：
 
     /**
@@ -79,11 +79,11 @@ title:  Storm源码-TimeCacheMap & RotatingMap
 
 这边要说一下这里为什么是间隔s/(n-1)，而不是s/n。因为后者的过期时间是(s-s/n, s)。
 
-## UT
+### UT
 
 奇怪没有找到这个类的ut。
 
-# RotatingMap
+## RotatingMap
 
 这个类的主体实现和TimeCacheMap一样，除了没有后台定时清理线程。然后暴露了一个rotate接口，用以删除一个桶。
 
