@@ -189,4 +189,4 @@ Kestrel ： fast，small，durable，reliable
 
 换句话说，Spout 有m个task，KestrelSpout中有n个队列。？
 
-我看了下[KestrelThriftSpout](https://github.com/nathanmarz/storm-kestrel/blob/master/src/jvm/backtype/storm/spout/KestrelThriftSpout.java)的代码，其支持的模型就是 hosts+queue_name。估计Kestrel被使员工的时候就是一个队列对外开放。
+我看了下[KestrelThriftSpout](https://github.com/nathanmarz/storm-kestrel/blob/master/src/jvm/backtype/storm/spout/KestrelThriftSpout.java)的代码，其支持的模型就是 hosts+queue_name。估计Kestrel被使用的时候就是一个队列对外开放。
