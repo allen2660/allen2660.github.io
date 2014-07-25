@@ -5,7 +5,7 @@ title:  set up a storm cluster
 
 本文为Storm官方文档[SettingUpStormCluster](http://storm.incubator.apache.org/documentation/Setting-up-a-Storm-cluster.html)的读书笔记
 
-搭建Storm集群的步骤总结：
+## 搭建Storm集群的步骤总结
 
 1. 搭建Zookeeper 集群
 2. 在Nimbus和Worker机器上安装依赖
@@ -13,27 +13,28 @@ title:  set up a storm cluster
 4. 将强制性的配置文件写入storm.yaml
 5. 启daemon
 
-我的环境：
+## 实践
+###我的环境：
 
-Zookeeper机器：
-     liwei12@cq01-dt-udwtest02.cq01.baidu.com
-     /home/liwei12/zookeeper
+    Zookeeper机器：
+         liwei12@cq01-dt-udwtest02.cq01.baidu.com
+         /home/liwei12/zookeeper    
 
-Nimbus & UI：
-     liwei12@cq01-dt-udwtest02.cq01.baidu.com
-     /home/liwei12/storm/nimbus
+    Nimbus & UI：
+         liwei12@cq01-dt-udwtest02.cq01.baidu.com
+         /home/liwei12/storm/nimbus 
 
-Supervisors：
-     liwei12@cq01-rdqa-dev040.cq01.baidu.com
-     /home/user/liwei12/storm/supervisor
-     work@tc-dt-logictest01.tc.baidu.com
-     /home/work/liwei12/storm/supervisor
+    Supervisors：
+         liwei12@cq01-rdqa-dev040.cq01.baidu.com
+         /home/user/liwei12/storm/supervisor
+         work@tc-dt-logictest01.tc.baidu.com
+         /home/work/liwei12/storm/supervisor    
 
-Storm Client：
-    liwei12@cq01-dt-udwtest02.cq01.baidu.com
-    /home/liwei12/CVS/liwei12/storm/
+    Storm Client：
+        liwei12@cq01-dt-udwtest02.cq01.baidu.com
+        /home/liwei12/CVS/liwei12/storm/
 
-# 搭建Zookeeper集群
+### 搭建Zookeeper集群
 
 我使用的是单机模式的Zookeeper，照着[这里](http://zookeeper.apache.org/doc/r3.3.3/zookeeperStarted.html#sc_InstallingSingleMode)搭就行了，注意配置文件：
 
@@ -42,7 +43,7 @@ Storm Client：
     logDir=/home/liwei12/zookeeper/log
     clientPort=2181
 
-# 在Nimbus和Worker机器上安装依赖
+### 在Nimbus和Worker机器上安装依赖
 
 要求：
 
@@ -50,11 +51,11 @@ Storm Client：
      Python 2.6.6+
 
 
-# 下载解压Storm release到Nimbus和worker机器上
+### 下载解压Storm release到Nimbus和worker机器上
 
 我下载的是0.9.2版本，[这里](http://apache.fayea.com/apache-mirror/incubator/storm/apache-storm-0.9.2-incubating/apache-storm-0.9.2-incubating.tar.gz)
 
-# 配置
+### 配置
 
 Nimbus和Supervisor 的storm.yaml配置：
 
@@ -66,7 +67,7 @@ Nimbus和Supervisor 的storm.yaml配置：
     drpc.servers:
      - "cq01-dt-udwtest02.cq01.baidu.com"
     
-# 启动Daemon
+### 启动Daemon
 
 在Nimbus机器上启动Nimbus
     

@@ -5,7 +5,6 @@ title:  运行的拓扑解析--worker，executor，task
 
 本文为Storm官方文档[What makes a running topology](https://storm.incubator.apache.org/documentation/Understanding-the-parallelism-of-a-Storm-topology.html)的读书笔记
 
-# What makes a running topology: worker processes, executors and tasks
 
 为了在Storm集群中运行一个拓扑，Storm中有下面三个不同的实体：
 

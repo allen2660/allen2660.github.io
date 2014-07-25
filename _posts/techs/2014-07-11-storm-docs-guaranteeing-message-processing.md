@@ -97,26 +97,23 @@ Storm的实现既能处理tree，也能处理上面的DAG的情况。
 大多数Bolt遵循这样的规律：读取一个tuple；发射一些新的tuple；在execute的结束的时候ack这个tuple。这些Bolt往往是一些过滤器或者简单函数。Storm为这类规律封装了一个BasicBolt类。如果用BasicBolt来做， 上面那个SplitSentence可以改写成这样：
 
     public class SplitSentence implements IBasicBolt {
-        public void prepare(Map conf,
-                            TopologyContext context) {
-        }
- 
-        public void execute(Tuple tuple,
-                            BasicOutputCollector collector) {
-            String sentence = tuple.getString(0);
-            for(String word: sentence.split(" ")) {
-                collector.emit(new Values(word));
-            }
-        }
- 
-        public void cleanup() {
-        }
- 
-        public void declareOutputFields(
-                        OutputFieldsDeclarer declarer) {
-            declarer.declare(new Fields("word"));
-        }
-    }
+        public void prepare(Map conf,
+            TopologyContext context) {
+        }
+        public void execute(Tuple tuple,BasicOutputCollector collector) {
+            String sentence = tuple.getString(0);
+            for(String word: sentence.split(" ")) {
+                collector.emit(new Values(word));
+            }
+        }
+         
+        public void cleanup() {
+        }
+         
+        public void declareOutputFields(OutputFieldsDeclarer declarer) {
+            declarer.declare(new Fields("word"));
+        }
+    }
 
 
 这个实现比之前的实现简单多了， 但是功能上是一样的。发送到BasicOutputCollector的tuple会自动和输入tuple相关联，而在execute方法结束的时候那个输入tuple会被自动ack的。
