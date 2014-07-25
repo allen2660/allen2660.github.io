@@ -3,7 +3,6 @@ layout: post
 title:  storm-tutorial
 ---
 
-# Storm Tutorial
 
 本文为Storm官方文档[Tutorial](http://storm.incubator.apache.org/documentation/Tutorial.html)的读书笔记
 
@@ -15,15 +14,15 @@ title:  storm-tutorial
 
 ## Storm集群的组件
 
-Storm集群很像Hadoop集群。在Hadoop上你运行“MapReduce 任务”，在Storm上你运行“拓扑”。“任务”和“拓扑”本身是不一样的。一个主要其别是M-R任务最终会完成，而拓扑一直运行。（除非被杀掉）
+Storm集群很像Hadoop集群。在Hadoop上你运行“MapReduce 任务”，在Storm上你运行“拓扑”。“任务”和“拓扑”本身是不一样的。一个主要区别是M-R任务最终会完成，而拓扑一直运行。（除非被杀掉）
 
-在Storm集群中有两种节点：master和worker。master几点运行“Nimbus”daemon，类似于Hadoop的JobTracker，Nimbus负责集群上的代码分发、非配任务给机器、监控失败情况。
+在Storm集群中有两种节点：master和worker。master节点运行“Nimbus”daemon，类似于Hadoop的JobTracker，Nimbus负责集群上的代码分发、非配任务给机器、监控失败情况。
 
 每个worker节点运行有一个“Supervisor”daemon。Supervisor监控分配给该机器的工作，按照Nimbus的分配启停worker进程。每个worker进程执行拓扑的子集，一个运行的拓扑由分布在很多机器上的work进程组成。
 
 ![](http://storm.incubator.apache.org/documentation/images/storm-cluster.png)
 
-Nimbus和Supervisor之间的协调工作都是基于[Zookeeper](http://zookeeper.apache.org/)完成。另外，Numbus daemon和Supervisor daemons 是fail-fast并且无状态的，所有的状态都寄去在Zookeeper或者本地磁盘上。这意味着你可以kill -9 Nimbus或者Supervisor，他们会自动重启，就像什么都没有发生一样。这个设计使得Storm集群异常的稳定。
+Nimbus和Supervisor之间的协调工作都是基于[Zookeeper](http://zookeeper.apache.org/)完成。另外，Numbus daemon和Supervisor daemons 是fail-fast并且无状态的，所有的状态都寄存在Zookeeper或者本地磁盘上。这意味着你可以kill -9 Nimbus或者Supervisor，他们会自动重启，就像什么都没有发生一样。这个设计使得Storm集群异常的稳定。
 
 ## 拓扑
 
@@ -51,7 +50,7 @@ spouts和bolts组成的网络被打包成“拓扑”，拓扑是你提交给Sto
 
 ![topology](http://storm.incubator.apache.org/documentation/images/topology.png)
 
-你的拓扑中节点之间的连接描述了元组发送的方向。举例来说，如果Spout A -> BoltB，Spout -> Bolt C，Bolt B -> Bolt C，每次Spout A提交一个元组，该元组会被发送到Bolt B和Bolt C，同时Bolt B的输出也会发送给Bolt C。
+你的拓扑中节点之间的连接描述了元组发送的方向。举例来说，如果Spout A -> BoltB，Spout A -> Bolt C，Bolt B -> Bolt C，每次Spout A提交一个元组，该元组会被发送到Bolt B和Bolt C，同时Bolt B的输出也会发送给Bolt C。
 
 Storm 拓扑中的每个节点都是并行执行的。在你的拓扑中，可以指定每个节点的并行度，Storm会根据这个并行数目在集群中分配线程来执行。
 
@@ -96,9 +95,9 @@ declareOutputFields这个函数声明了输出字段为["double","triple"]，关
     builder.setBolt("exclaim1", new ExclamationBolt(), 3) .shuffleGrouping("words"); 
     builder.setBolt("exclaim2", new ExclamationBolt(), 2) .shuffleGrouping("exclaim1");
 
-该拓扑包含一个spout、两个bolt。spout输出words，每个bolt在输入后面附加“!!!”。节点是线性排列的：spout提交给第一个bolt，第一个bolt提交给第二个bolt。如果spout输出两个touple ["bob"]和["john"]，第二个bolt就会输出["bob!!!"]和["john!!!"]。
+该拓扑包含一个spout、两个bolt。spout输出words，每个bolt在输入后面附加“!!!”。节点是线性排列的：spout提交给第一个bolt，第一个bolt提交给第二个bolt。如果spout输出两个touple ["bob"]和["john"]，第二个bolt就会输出["bob!!!!!!"]和["john!!!!!!"]。
 
-上面的代码使用setSpout和setBolt方法来定义节点。这两个方法接受一下参数：用户定义id、包含处理逻辑的对象、节点的并行数目。在上面的例子中，spout的id是“words”，bolt的id分别为“exclaim1”和“exclaim2”。
+上面的代码使用setSpout和setBolt方法来定义节点。这两个方法接受以下参数：用户定义id、包含处理逻辑的对象、节点的并行数目。在上面的例子中，spout的id是“words”，bolt的id分别为“exclaim1”和“exclaim2”。
 
 其中，第二个参数对象通过实现IRichSpout接口或者IRichBolt接口来包含处理逻辑。
 
@@ -204,7 +203,7 @@ name用来指定一个topo方便杀掉。不杀的话，拓扑会一直运行下
 
 配置是用来调节运行拓扑的很多方面的。下面两个配置属性很常见：
 
-+ TOPOLOGY_WORKERS(setNumWorkers) 指定分配多少进程来承担worker的功能。拓扑的组件(spout,bolt)以线程的方式运行。组件的线程数目被setBolt和setSpout方法控制。这些组件的线程在worker进程中运行。举例来说，你可以指定50个工作进程，300个线程的组件。这样的话每个进程有6个线程，每个县城都可以属于不同的组件。你通过调节每个组件的并发度和worker进程的个数来调节Storm拓扑的性能。
++ TOPOLOGY_WORKERS(setNumWorkers) 指定分配多少进程来承担worker的功能。拓扑的组件(spout,bolt)以线程的方式运行。组件的线程数目被setBolt和setSpout方法控制。这些组件的线程在worker进程中运行。举例来说，你可以指定50个工作进程，300个线程的组件。这样的话每个进程有6个线程，每个线程都可以属于不同的组件。你通过调节每个组件的并发度和worker进程的个数来调节Storm拓扑的性能。
 + TOPOLOGY_DEBUG(setDebug) 设为true时，告诉Storm记录每个组件提交的每个消息。这在本地模式测试拓扑的时候很有用，但是在集群中运行的时候最好关掉。
 
 关于拓扑还有很多可配置的。详见[the Javadoc for Config](http://storm.incubator.apache.org/apidocs/backtype/storm/Config.html)。
