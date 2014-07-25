@@ -5,7 +5,7 @@ title:  storm-rationale
 
 本文为Storm官方文档[Rationale](http://storm.incubator.apache.org/documentation/Rationale.html)的读书笔记
 
-# Storm基本原理
+## Storm基本原理
 
 过去十年见证了数据处理的革命。MapReduce、Hadoop以及相关技术使得存储和处理之前不可想象的规模的数据变成可能。不幸的是，这些数据梳理技术不是实时系统，也不是被设计为实时系统的。没有办法让Hadoop变身为实时系统，实时数据处理和批处理在需求上有着根本性的不同。
 
