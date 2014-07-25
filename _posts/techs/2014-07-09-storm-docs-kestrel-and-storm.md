@@ -7,11 +7,11 @@ title:  Kestrel and Storm
 
 本页面解释如何使用Storm消费Kestrel集群的数据。
 
-# 背景
+## 背景
 
 本教程来自[storm-kestrel](https://github.com/nathanmarz/storm-kestrel) 和storm-starter。
 
-# Kestrel Server and Queue
+## Kestrel Server and Queue
 
 单个kestrel server有一个队列集合。Kestrel 队列是一个非常简单的运行在JVM上的消息队列，它使用memcache协议和客户端通信。如果想了解更详细，可以看[storm-kestrel](https://github.com/nathanmarz/storm-kestrel)上的[KestrelThriftClient](https://github.com/nathanmarz/storm-kestrel/blob/master/src/jvm/backtype/storm/spout/KestrelThriftClient.java)的实现。
 
@@ -23,7 +23,7 @@ Kestrel ： fast，small，durable，reliable
 
 举例说，Twitter使用Kestrel做消息架构的主心骨，[这里](http://bhavin.directi.com/notes-on-kestrel-the-open-source-twitter-queue/)有描述。
 
-# 向Kestrel中添加消息。
+## 向Kestrel中添加消息。
 
 首先，我们需要有一个程序向Kestrel队列发送消息。下面的方法使用了storm-kestrel中的KestrelClient。
 
@@ -50,7 +50,7 @@ Kestrel ： fast，small，durable，reliable
         }
     }
 
-# 从Kestrel从移除
+## 从Kestrel从移除
 
 这个方法从队列中取出消息但不删除。
 
@@ -99,7 +99,7 @@ Kestrel ： fast，small，durable，reliable
     }
 
 
-# 持续的向Kestrel中添加消息
+## 持续的向Kestrel中添加消息
 
 这是我们的最终程序，用以向本地Kestrel server的'sentence_queue'中持续地发送消息。
 
@@ -173,7 +173,7 @@ Kestrel ： fast，small，durable，reliable
     builder.setBolt("count", new WordCount(), 20) 
         .fieldsGrouping("split", new Fields("word"));
 
-# 执行
+## 执行
 
 首先，启动本地kestrel server。
 
@@ -183,7 +183,7 @@ Kestrel ： fast，small，durable，reliable
 
 如果以TOPOLOGY_DEBUG形式运行，你可以看到元组在拓扑中被提交。
 
-# 思考
+## 思考
 
 可以一个Spout对应KestrelSpout中的多个队列么？
 

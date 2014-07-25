@@ -137,11 +137,11 @@ Batch bolt提供了finishBatch方法，在这个batch所有的元组都被接受
 
 在底层，`CoordinatedBolt`被用于检测一个bolt是否收到了一个请求id对应的所有元组。`CoordinatedBolt`使用'direct stream'来实现这种协调。（direct stream使用direct grouping）
 
-拓扑的其他部分都是直接是的。你可以看见，reach 计算的每个步骤都是并行计算的，定义DRPC拓扑极其简单。
+拓扑的其他部分都是自解释的。你可以看见，reach 计算的每个步骤都是并行计算的，定义DRPC拓扑极其简单。
 
 ## 非线性 DRPC 拓扑
 
-`LinearDRPCTopologyBuilde`只能处理线性的DRPC拓扑，这种拓扑中计算是一序列步骤。不难相信会有函数需要bolt的分叉以及合并。目前你需要自己使用CoordinateBolt在底层实现。可以等待更多的DRPC拓扑抽象被支持。
+`LinearDRPCTopologyBuilder`只能处理线性的DRPC拓扑，这种拓扑中计算是一序列步骤。不难相信会有函数需要bolt的分叉以及合并。目前你需要自己使用CoordinateBolt在底层实现。可以等待更多的DRPC拓扑抽象被支持。
 
 ## LinearDRPCTopologyBuilder 如何工作
 
