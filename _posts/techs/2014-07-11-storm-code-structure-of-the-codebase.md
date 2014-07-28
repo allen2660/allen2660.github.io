@@ -10,7 +10,7 @@ Storm源码有三个不同的层次。
 
 首先，Storm一开始是被设计成兼容多语言的。Nimbus是一个Thrift服务、拓扑也被定义成Thrift结构体。Thrift的使用允许Storm兼容多语言。
 
-其实，所有的Storm接口都是Java接口。所以即使在Storm的实现中有很多Clojure代码，使用Storm全部都是Java接口。
+其次，所有的Storm接口都是Java接口。所以即使在Storm的实现中有很多Clojure代码，使用Storm全部都是Java接口。
 
 第三，Storm的实现大部分基于Clojure。从行数上看，Storm中一半是Java，一半是Clojure。但是Clojure表现力更强，所以实际上大部分代码都是Clojure。
 
