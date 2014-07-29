@@ -75,7 +75,7 @@ Spout和bolt序列化成上面讨论的Thrift定义。
 
 [backtype.storm.drpc](https://github.com/apache/incubator-storm/tree/master/storm-core/src/jvm/backtype/storm/drpc): DRPC的更高层次抽象的具体实现
 
-[backtype.storm.generated](https://github.com/apache/incubator-storm/tree/master/storm-core/src/jvm/backtype/storm/generated): 自动生成的Thrift代码（利用[这里folk出来的Thrift版本](https://github.com/nathanmarz/thrift)生成的，主要是把org.apache.thrift包重命名成org.apache.thrift7来避免与其他Thrift版本的冲突）
+[backtype.storm.generated](https://github.com/apache/incubator-storm/tree/master/storm-core/src/jvm/backtype/storm/generated): 自动生成的Thrift代码（利用[这里fork出来的Thrift版本](https://github.com/nathanmarz/thrift)生成的，主要是把org.apache.thrift包重命名成org.apache.thrift7来避免与其他Thrift版本的冲突）
 
 [backtype.storm.grouping](https://github.com/apache/incubator-storm/tree/master/storm-core/src/jvm/backtype/storm/grouping): 包含了用户实现自定义stream分组类时需要用到的接口
 
