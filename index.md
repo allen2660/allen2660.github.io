@@ -75,6 +75,10 @@ title: 我的Blog
 + Storm代码阅读
     + [Storm代码-代码结构](/storm-code-structure-of-the-codebase/)
     + [Storm代码-TimeCachedMap & RotatingMap](/storm-code-timecachemap-rotatingmap/)
+    + [Storm代码-序列化](/storm-code-serialization/)
+    + [Storm代码-thrift](/storm-code-thrift/)
+    + [Storm代码-元组](/storm-code-tuple/)
+    + [Storm代码-消息传输](/storm-code-messaging/)
 
 ##6. 存储技术
 
