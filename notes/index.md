@@ -27,6 +27,7 @@ title: 我的Notes
 + [代码大全](/code-complete-2/)
 + 重构
 + 代码整洁之道(Clean Code)
++ 设计模式(GOF)
 
 ### 文学
 
