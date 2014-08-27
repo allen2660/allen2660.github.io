@@ -90,6 +90,7 @@ title: 我的Blog
 ###C++
 
 + [googlemock介绍](/gmock/)
++ [c++ lambda](/cpp-lambda/)
 
 ###Java
 
