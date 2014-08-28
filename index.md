@@ -91,6 +91,7 @@ title: 我的Blog
 
 + [googlemock介绍](/gmock/)
 + [c++ lambda](/cpp-lambda/)
++ [c++ rvalue](/cpp-rvalue/)
 
 ###Java
 
