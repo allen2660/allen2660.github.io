@@ -57,6 +57,8 @@ title: 我的Blog
 
 ###Hadoop
 
++ [Hadoop自定义Partitioner](/hadoop-partitioner/)
+
 ###Storm
 
 + [Storm文档-Rationale](/storm-docs-rationale/)
