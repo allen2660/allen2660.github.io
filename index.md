@@ -24,6 +24,8 @@ title: 我的Blog
 
 ###Linux
 
++ [标准输出同时写入文件](/fifo-tee/)
+
 ## 2. 工具&桌面系统
 
 ###Vim
