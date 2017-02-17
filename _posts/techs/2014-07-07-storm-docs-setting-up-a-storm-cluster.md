@@ -17,21 +17,21 @@ title:  set up a storm cluster
 ###我的环境：
 
     Zookeeper机器：
-         liwei12@cq01-dt-udwtest02.cq01.baidu.com
+         liwei12@machine-01
          /home/liwei12/zookeeper    
 
     Nimbus & UI：
-         liwei12@cq01-dt-udwtest02.cq01.baidu.com
+         liwei12@machine-01
          /home/liwei12/storm/nimbus 
 
     Supervisors：
-         liwei12@cq01-rdqa-dev040.cq01.baidu.com
+         liwei12@machine-02
          /home/user/liwei12/storm/supervisor
-         work@tc-dt-logictest01.tc.baidu.com
+         work@machine-03
          /home/work/liwei12/storm/supervisor    
 
     Storm Client：
-        liwei12@cq01-dt-udwtest02.cq01.baidu.com
+        liwei12@machine-01
         /home/liwei12/CVS/liwei12/storm/
 
 ### 搭建Zookeeper集群
@@ -60,12 +60,12 @@ title:  set up a storm cluster
 Nimbus和Supervisor 的storm.yaml配置：
 
     storm.zookeeper.servers:
-     - "cq01-dt-udwtest02.cq01.baidu.com"
+     - "machine-01"
     storm.local.dir: "/home/liwei12/storm/nimbus/data"
-    nimbus.host: "cq01-dt-udwtest02.cq01.baidu.com"
+    nimbus.host: "machine-01"
     ui.port: 8081
     drpc.servers:
-     - "cq01-dt-udwtest02.cq01.baidu.com"
+     - "machine-01"
     
 ### 启动Daemon
 
